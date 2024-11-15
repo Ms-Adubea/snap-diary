@@ -50,8 +50,8 @@ const Sidebar = ({ onSelect, isOpen, isMobile, theme }) => {
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
             >
-                <div className="flex flex-col h-full">
-                    <h2 className={`text-2xl font-bold p-4 flex items-center gap-2 ${!isExpanded && !isMobile ? 'text-center text-sm' : ''}`}>
+                <div className="flex flex-col h-full ">
+                    <h2 className={`text-2xl font-bold p-4 flex items-center gap-2 ${!isExpanded && !isMobile ? 'text-center text-sm ' : ''}`}>
                         {isExpanded || isMobile ? (
                             <>
                                 <FaCamera className="text-gray-500" />

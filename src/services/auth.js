@@ -6,7 +6,10 @@ export const apiSignup = async (payload) => {
 export const apiLogin = async (payload) => {
     return await apiClient.post ( '/users/login', payload)
 }
-export const apiProfile = async (payload) => {
+export const apiGetProfile = async (payload) => {
+    return await apiClient.get ( '/users/me')
+}
+export const apiUpdateProfile = async (payload) => {
     return await apiClient.patch ( '/users/me', payload)
 }
 

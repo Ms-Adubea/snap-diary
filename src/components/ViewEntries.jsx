@@ -10,7 +10,7 @@ const ViewEntries = ({ entries }) => {
           <tr className="bg-gray-100">
             <th className="py-3 px-4 border-b font-semibold text-gray-700">Image</th>
             <th className="py-3 px-4 border-b font-semibold text-gray-700">Title</th>
-            <th className="py-3 px-4 border-b font-semibold text-gray-700">Category</th>
+            {/* <th className="py-3 px-4 border-b font-semibold text-gray-700">Category</th> */}
             {/* <th className="py-3 px-4 border-b font-semibold text-gray-700">Location</th> */}
             <th className="py-3 px-4 border-b font-semibold text-gray-700">Actions</th>
           </tr>

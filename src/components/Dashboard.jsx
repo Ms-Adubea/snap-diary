@@ -58,9 +58,9 @@ const Dashboard = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   const [currentTheme, setCurrentTheme] = useState(themes[0]);
   const [user, setUser] = useState({
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john@example.com',
+    firstName: '',
+    lastName: '',
+    email: '',
     avatar: null
   });
 

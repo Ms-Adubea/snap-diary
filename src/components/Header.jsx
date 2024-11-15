@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { FaBars, FaUser, FaCog } from 'react-icons/fa';
-import { AiFillHome } from 'react-icons/ai';
+import { FaBars, FaUser, FaCog, FaSignOutAlt, FaHome } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 
 const Header = ({ toggleSidebar, user, theme }) => {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -26,51 +26,54 @@ const Header = ({ toggleSidebar, user, theme }) => {
         >
           <FaBars />
         </button>
-        <a href="/" className="text-xl font-semibold flex items-center">
-          <AiFillHome className="mr-2" />
-          Snap Diary
-        </a>
+        <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+          <FaHome className="text-2xl" />
+          <span className="text-xl font-semibold" style={{ fontFamily: "'Dancing Script', cursive" }}>
+            Snap Diary
+          </span>
+        </Link>
       </div>
       <div className="relative" ref={dropdownRef}>
         <button 
           onClick={() => setShowDropdown(!showDropdown)}
-          className="flex items-center gap-2 hover:bg-red-700 rounded-lg px-3 py-2 transition-colors"
+          className="flex items-center gap-2 hover:bg-black/10 rounded-lg px-3 py-2 transition-colors"
         >
           {user?.avatar ? (
             <img 
               src={user.avatar} 
               alt={user.firstName} 
-              className="w-8 h-8 rounded-full object-cover"
+              className="w-8 h-8 rounded-full object-cover border-2 border-white"
             />
           ) : (
-            <div className="w-8 h-8 rounded-full bg-red-700 flex items-center justify-center">
-              <FaUser />
+            <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center border-2 border-white">
+              <FaUser className="text-white" />
             </div>
           )}
-          <span>{user?.firstName || 'User'}</span>
+          <span className="font-medium">{user?.firstName || 'User'}</span>
         </button>
 
         {showDropdown && (
-          <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50">
+          <div className={`absolute right-0 mt-2 w-48 ${theme.cardBg} rounded-lg shadow-lg py-2 z-50 border ${theme.borderColor}`}>
             <button 
               onClick={() => {/* Handle profile click */}}
-              className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+              className={`w-full text-left px-4 py-2 ${theme.textColor} hover:bg-black/10 flex items-center gap-2`}
             >
-              <FaUser className="text-gray-400" />
+              <FaUser className="opacity-70" />
               Profile
             </button>
             <button 
               onClick={() => {/* Handle settings click */}}
-              className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+              className={`w-full text-left px-4 py-2 ${theme.textColor} hover:bg-black/10 flex items-center gap-2`}
             >
-              <FaCog className="text-gray-400" />
+              <FaCog className="opacity-70" />
               Settings
             </button>
-            <div className="border-t border-gray-100 my-2"></div>
+            <div className={`border-t ${theme.borderColor} my-2`}></div>
             <button 
               onClick={() => {/* Handle logout */}}
-              className="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
+              className="w-full text-left px-4 py-2 text-red-600 hover:bg-black/10 flex items-center gap-2"
             >
+              <FaSignOutAlt className="opacity-70" />
               Logout
             </button>
           </div>

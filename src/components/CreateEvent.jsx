@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { FaCalendar } from 'react-icons/fa';
+import { apiCreateEvent } from '../services/event';
+import Swal from 'sweetalert2';
 
 const CreateEvent = ({ onSave, theme }) => {
   const [eventName, setEventName] = useState('');
@@ -11,9 +13,27 @@ const CreateEvent = ({ onSave, theme }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    
+    if (!eventName.trim()) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Event Name Required',
+        text: 'Please enter a name for your event',
+      });
+      return;
+    }
+
+    if (!startDate || !endDate) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Dates Required',
+        text: 'Please select both start and end dates',
+      });
+      return;
+    }
 
     try {
+      setLoading(true);
       const eventData = {
         eventName,
         eventDescription,
@@ -22,15 +42,36 @@ const CreateEvent = ({ onSave, theme }) => {
         location,
       };
 
-      await onSave(eventData);
-      // Reset form
-      setEventName('');
-      setEventDescription('');
-      setStartDate('');
-      setEndDate('');
-      setLocation('');
+      const response = await apiCreateEvent(eventData);
+      
+      if (response.data) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Event Created!',
+          text: 'Your event has been created successfully.',
+          showConfirmButton: false,
+          timer: 2000,
+        });
+
+        // Reset form
+        setEventName('');
+        setEventDescription('');
+        setStartDate('');
+        setEndDate('');
+        setLocation('');
+
+        // Call onSave if provided
+        if (onSave) {
+          onSave(response.data);
+        }
+      }
     } catch (error) {
       console.error('Error creating event:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.response?.data?.message || 'Failed to create event. Please try again.',
+      });
     } finally {
       setLoading(false);
     }

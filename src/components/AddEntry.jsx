@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { FaImage, FaStar, FaTimes } from 'react-icons/fa';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import Swal from 'sweetalert2';
+import { apiPostPhotos } from '../services/photo';
 
 const AddEntry = ({ events, onSave, theme }) => {
   const [title, setTitle] = useState('');
@@ -14,7 +16,6 @@ const AddEntry = ({ events, onSave, theme }) => {
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
     const newPreviewUrls = files.map(file => URL.createObjectURL(file));
-    
     setImages(prevImages => [...prevImages, ...files]);
     setPreviewUrls(prevUrls => [...prevUrls, ...newPreviewUrls]);
   };
@@ -40,28 +41,71 @@ const AddEntry = ({ events, onSave, theme }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    
+    if (!title.trim()) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Title Required',
+        text: 'Please enter a title for your entry',
+      });
+      return;
+    }
+
+    if (images.length === 0) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Images Required',
+        text: 'Please upload at least one image',
+      });
+      return;
+    }
 
     try {
+      setLoading(true);
       const formData = new FormData();
       formData.append('title', title);
       formData.append('description', description);
-      formData.append('eventId', selectedEvent);
+      if (selectedEvent) {
+        formData.append('eventId', selectedEvent);
+      }
       formData.append('isFavorite', isFavorite);
+      
+      // Append each image with a unique key
       images.forEach((image, index) => {
-        formData.append('images', image);
+        formData.append(`images`, image);
       });
 
-      await onSave(formData);
-      // Reset form
-      setTitle('');
-      setDescription('');
-      setSelectedEvent('');
-      setImages([]);
-      setPreviewUrls([]);
-      setIsFavorite(false);
+      const response = await apiPostPhotos(formData);
+      
+      if (response.data) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Entry Created!',
+          text: 'Your memory has been saved successfully.',
+          showConfirmButton: false,
+          timer: 2000,
+        });
+
+        // Reset form only after successful submission
+        setTitle('');
+        setDescription('');
+        setSelectedEvent('');
+        setImages([]);
+        setPreviewUrls([]);
+        setIsFavorite(false);
+
+        // Call onSave if provided
+        if (onSave) {
+          onSave(response.data);
+        }
+      }
     } catch (error) {
-      console.error('Error saving entry:', error);
+      console.error('Error creating entry:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.response?.data?.message || 'Failed to create entry. Please try again.',
+      });
     } finally {
       setLoading(false);
     }
@@ -69,7 +113,7 @@ const AddEntry = ({ events, onSave, theme }) => {
 
   return (
     <div className={`max-w-4xl mx-auto p-6 bg-red-200 ${theme.textColor}`}>
-      <h2 className="text-2xl font-bold mb-6">Create New Entry</h2>
+      <h2 className="text-2xl font-bold mb-6">Create New Memory</h2>
       
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Title */}
