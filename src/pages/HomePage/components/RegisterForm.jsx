@@ -38,43 +38,46 @@ const RegisterForm = () => {
     const email = formData.get("email");
     const password = formData.get("password");
     const confirmPassword = formData.get("confirmPassword");
-
+  
     // Password validation
     if (password !== confirmPassword) {
       setPasswordError("Passwords do not match");
       return;
     }
     setPasswordError("");
-   
+  
     try {
       setLoading(true);
       const payload = new FormData();
-      payload.append('firstName', firstName);
-      payload.append('lastName', lastName);
-      payload.append('email', email);
-      payload.append('password', password);
+      payload.append("firstName", firstName);
+      payload.append("lastName", lastName);
+      payload.append("email", email);
+      payload.append("password", password);
+      payload.append("confirmPassword", confirmPassword); // Include confirmPassword
+  
       if (avatar) {
-        payload.append('avatar', avatar);
+        payload.append("avatar", avatar);
       }
-
+  
       const response = await apiSignup(payload);
       console.log(response.data);
       Swal.fire({
-        icon: 'success',
-        title: 'Registration Successful',
-        text: 'You have successfully registered!',
+        icon: "success",
+        title: "Registration Successful",
+        text: "You have successfully registered!",
       });
       navigate("/login");
     } catch (error) {
       Swal.fire({
-        icon: 'error',
-        title: 'Registration Failed',
-        text: 'There was an error during registration. Please try again.',
+        icon: "error",
+        title: "Registration Failed",
+        text: "There was an error during registration. Please try again.",
       });
     } finally {
       setLoading(false);
     }
   };
+  
 
   return (
     <div
