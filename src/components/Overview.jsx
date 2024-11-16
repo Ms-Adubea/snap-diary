@@ -1,18 +1,29 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaPlus, FaCalendarPlus } from 'react-icons/fa';
+import { getCurrentUser } from '../services/auth';
 
-const Overview = ({ firstName, entries, onSelect, theme }) => {
+const Overview = ({ entries, onSelect, theme }) => {
+    const [user, setUser] = useState(null);
     const recentEntries = entries
         .sort((a, b) => new Date(b.date) - new Date(a.date))
         .slice(0, 5);
 
     const favoriteEntries = entries.filter(entry => entry.isFavorite).slice(0, 5);
 
+    useEffect(() => {
+        const userData = getCurrentUser();
+        if (userData) {
+            setUser(userData);
+        }
+    }, []);
+
     return (
         <div className="space-y-8">
             {/* Welcome Section */}
             <div className={`${theme.cardBg} p-6 rounded-lg shadow-md`}>
-                <h1 className="text-2xl font-bold mb-4">Welcome back, {firstName}! 👋</h1>
+                <h1 className="text-2xl font-bold mb-4">
+                    Welcome, {user?.firstName || 'User'}! 👋
+                </h1>
                 <div className="flex gap-4">
                     <button 
                         onClick={() => onSelect("addEntry")}

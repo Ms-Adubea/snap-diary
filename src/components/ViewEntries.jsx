@@ -1,62 +1,218 @@
-import React from 'react';
-import { FaStar, FaEye, FaEdit, FaTrash } from 'react-icons/fa'; // Import icons for favorite, view, edit, and delete
+import React, { useState, useEffect } from 'react';
+import { FaStar, FaEye, FaEdit, FaTrash } from 'react-icons/fa';
+import { apiGetPhotos, apiDeletePhoto, apiToggleFavorite } from '../services/photo';
+import ViewEntry from './ViewEntry';
+import EditEntry from './EditEntry';
+import SearchBar from './SearchBar';
+import Swal from 'sweetalert2';
 
-const ViewEntries = ({ entries }) => {
-  return (
-    <div className="entry-list p-6">
-      <h2 className="text-2xl font-bold mb-4">All Entries</h2>
-      <table className="min-w-full bg-white border border-gray-200 rounded">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="py-3 px-4 border-b font-semibold text-gray-700">Image</th>
-            <th className="py-3 px-4 border-b font-semibold text-gray-700">Title</th>
-            {/* <th className="py-3 px-4 border-b font-semibold text-gray-700">Category</th> */}
-            {/* <th className="py-3 px-4 border-b font-semibold text-gray-700">Location</th> */}
-            <th className="py-3 px-4 border-b font-semibold text-gray-700">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {entries.map((entry) => (
-            <tr key={entry.id} className="hover:bg-gray-50">
-              {/* Image column */}
-              <td className="py-3 px-4 border-b text-center">
-                {entry.images && entry.images.length > 0 ? (
-                  <img
-                    src={URL.createObjectURL(entry.images[0])}
-                    alt="Entry"
-                    className="w-16 h-16 object-cover rounded"
-                  />
-                ) : (
-                  <span className="text-gray-400">No Image</span>
-                )}
-              </td>
-              {/* Title column */}
-              <td className="py-3 px-4 border-b text-gray-800">{entry.title}</td>
-              {/* Category column */}
-              <td className="py-3 px-4 border-b text-gray-800">{entry.category}</td>
-              {/* Location column */}
-              <td className="py-3 px-4 border-b text-gray-800">{entry.location || 'N/A'}</td>
-              {/* Actions column */}
-              <td className="py-3 px-4 border-b text-center space-x-2">
-                <button className="text-yellow-500 hover:text-yellow-600">
-                  <FaStar title="Favorite" />
-                </button>
-                <button className="text-blue-500 hover:text-blue-600">
-                  <FaEye title="View" />
-                </button>
-                <button className="text-green-500 hover:text-green-600">
-                  <FaEdit title="Edit" />
-                </button>
-                <button className="text-red-500 hover:text-red-600">
-                  <FaTrash title="Delete" />
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+const ViewEntries = ({ theme }) => {
+    const [entries, setEntries] = useState([]);
+    const [filteredEntries, setFilteredEntries] = useState([]);
+    const [selectedEntry, setSelectedEntry] = useState(null);
+    const [editingEntry, setEditingEntry] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    const fetchEntries = async () => {
+        try {
+            const response = await apiGetPhotos();
+            setEntries(response.data);
+            setFilteredEntries(response.data);
+        } catch (error) {
+            console.error('Error fetching entries:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Failed to load entries',
+            });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchEntries();
+    }, []);
+
+    const handleSearch = ({ searchTerm, startDate, endDate }) => {
+        let filtered = entries;
+
+        if (searchTerm) {
+            const term = searchTerm.toLowerCase();
+            filtered = filtered.filter(entry => 
+                entry.title.toLowerCase().includes(term) ||
+                entry.description?.toLowerCase().includes(term)
+            );
+        }
+
+        if (startDate && endDate) {
+            filtered = filtered.filter(entry => {
+                const entryDate = new Date(entry.createdAt);
+                return entryDate >= new Date(startDate) && 
+                       entryDate <= new Date(endDate);
+            });
+        }
+
+        setFilteredEntries(filtered);
+    };
+
+    const handleDelete = async (id) => {
+        try {
+            const result = await Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            });
+
+            if (result.isConfirmed) {
+                await apiDeletePhoto(id);
+                setEntries(entries.filter(entry => entry.id !== id));
+                setFilteredEntries(filteredEntries.filter(entry => entry.id !== id));
+                Swal.fire('Deleted!', 'Your entry has been deleted.', 'success');
+            }
+        } catch (error) {
+            console.error('Error deleting entry:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Failed to delete entry',
+            });
+        }
+    };
+
+    const handleToggleFavorite = async (id) => {
+        try {
+            await apiToggleFavorite(id);
+            const updatedEntries = entries.map(entry => 
+                entry.id === id 
+                    ? { ...entry, isFavorite: !entry.isFavorite }
+                    : entry
+            );
+            setEntries(updatedEntries);
+            setFilteredEntries(
+                filteredEntries.map(entry => 
+                    entry.id === id 
+                        ? { ...entry, isFavorite: !entry.isFavorite }
+                        : entry
+                )
+            );
+        } catch (error) {
+            console.error('Error toggling favorite:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Failed to update favorite status',
+            });
+        }
+    };
+
+    const handleUpdate = (updatedEntry) => {
+        const updatedEntries = entries.map(entry =>
+            entry.id === updatedEntry.id ? updatedEntry : entry
+        );
+        setEntries(updatedEntries);
+        setFilteredEntries(
+            filteredEntries.map(entry =>
+                entry.id === updatedEntry.id ? updatedEntry : entry
+            )
+        );
+    };
+
+    if (loading) {
+        return <div className="flex justify-center items-center h-64">Loading...</div>;
+    }
+
+    return (
+        <div className={`p-6 ${theme.textColor}`}>
+            <h2 className="text-2xl font-bold mb-6">My Memories</h2>
+            
+            <SearchBar 
+                onSearch={handleSearch}
+                onClear={() => setFilteredEntries(entries)}
+                theme={theme}
+            />
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredEntries.map((entry) => (
+                    <div 
+                        key={entry.id} 
+                        className={`${theme.cardBg} rounded-lg shadow-md overflow-hidden`}
+                    >
+                        {entry.images && entry.images[0] && (
+                            <img
+                                src={`https://savefiles.org/${entry.image}?shareable_link=509`}
+                                alt={entry.title}
+                                className="w-full h-48 object-cover"
+                            />
+                        )}
+                        
+                        <div className="p-4">
+                            <h3 className="text-lg font-semibold mb-2">{entry.title}</h3>
+                            <p className="text-sm opacity-75 mb-4">
+                                {entry.description?.substring(0, 100)}...
+                            </p>
+                            
+                            <div className="flex justify-between items-center">
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => setSelectedEntry(entry)}
+                                        className="text-blue-500 hover:text-blue-600"
+                                        title="View"
+                                    >
+                                        <FaEye />
+                                    </button>
+                                    <button
+                                        onClick={() => setEditingEntry(entry)}
+                                        className="text-green-500 hover:text-green-600"
+                                        title="Edit"
+                                    >
+                                        <FaEdit />
+                                    </button>
+                                    <button
+                                        onClick={() => handleToggleFavorite(entry.id)}
+                                        className={`${entry.isFavorite ? 'text-yellow-500' : 'text-gray-400'} hover:text-yellow-500`}
+                                        title={entry.isFavorite ? "Remove from favorites" : "Add to favorites"}
+                                    >
+                                        <FaStar />
+                                    </button>
+                                </div>
+                                
+                                <button
+                                    onClick={() => handleDelete(entry.id)}
+                                    className="text-red-500 hover:text-red-600"
+                                    title="Delete"
+                                >
+                                    <FaTrash />
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {selectedEntry && (
+                <ViewEntry
+                    entry={selectedEntry}
+                    onClose={() => setSelectedEntry(null)}
+                    onToggleFavorite={handleToggleFavorite}
+                    theme={theme}
+                />
+            )}
+
+            {editingEntry && (
+                <EditEntry
+                    entry={editingEntry}
+                    onClose={() => setEditingEntry(null)}
+                    onUpdate={handleUpdate}
+                    theme={theme}
+                />
+            )}
+        </div>
+    );
 };
 
 export default ViewEntries;

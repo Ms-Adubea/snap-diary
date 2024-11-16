@@ -38,14 +38,14 @@ const RegisterForm = () => {
     const email = formData.get("email");
     const password = formData.get("password");
     const confirmPassword = formData.get("confirmPassword");
-  
+
     // Password validation
     if (password !== confirmPassword) {
       setPasswordError("Passwords do not match");
       return;
     }
     setPasswordError("");
-  
+
     try {
       setLoading(true);
       const payload = new FormData();
@@ -54,13 +54,21 @@ const RegisterForm = () => {
       payload.append("email", email);
       payload.append("password", password);
       payload.append("confirmPassword", confirmPassword); // Include confirmPassword
-  
+      
       if (avatar) {
         payload.append("avatar", avatar);
       }
-  
+
+      console.log('Submitting registration data:', {
+        firstName,
+        lastName,
+        email,
+        hasAvatar: !!avatar
+      });
+
       const response = await apiSignup(payload);
-      console.log(response.data);
+      console.log('Registration response:', response.data);
+
       Swal.fire({
         icon: "success",
         title: "Registration Successful",
@@ -68,16 +76,16 @@ const RegisterForm = () => {
       });
       navigate("/login");
     } catch (error) {
+      console.error('Registration error:', error);
       Swal.fire({
         icon: "error",
         title: "Registration Failed",
-        text: "There was an error during registration. Please try again.",
+        text: error.response?.data?.message || "There was an error during registration. Please try again.",
       });
     } finally {
       setLoading(false);
     }
   };
-  
 
   return (
     <div

@@ -5,7 +5,9 @@ import PolaroidCarousel from './components/PolaroidCarousel';
 import HomePage from './pages/HomePage';
 import RegisterForm from './pages/HomePage/components/RegisterForm';
 import LoginForm from './pages/HomePage/components/LoginForm';
-
+import AboutUs from './pages/HomePage/components/AboutUs';
+import UserProfile from './components/UserProfile';
+import Settings from './components/Settings';
 
 function App() {
   
@@ -25,6 +27,18 @@ function App() {
     {
       path: "/login",
       element: <LoginForm />,
+    },
+    {
+      path: "/about",
+      element: <AboutUs />,
+    },
+    {
+      path: "/profile",
+      element: <UserProfile />,
+    },
+    {
+      path: "/settings",
+      element: <Settings />,
     },
     {
       path: "/pol",

@@ -20,3 +20,9 @@ export const apiUpdateEvent = async (id, eventData) => {
 export const apiDeleteEvent = async (id) => {
     return await apiClient.delete(`/events/${id}`)
 }
+export const apiToggleEventFavorite = async (id) => {
+    return await apiClient.patch(`/events/${id}/favorite`)
+}
+export const apiGetFavoriteEvents = async () => {
+    return await apiClient.get('/events/favorites')
+}

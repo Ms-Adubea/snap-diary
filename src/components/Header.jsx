@@ -1,10 +1,21 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { FaBars, FaUser, FaCog, FaSignOutAlt, FaHome } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { getCurrentUser, logout } from '../services/auth';
 
-const Header = ({ toggleSidebar, user, theme }) => {
+const Header = ({ toggleSidebar, theme }) => {
   const [showDropdown, setShowDropdown] = useState(false);
+  const [user, setUser] = useState(null);
   const dropdownRef = useRef(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const userData = getCurrentUser();
+    if (userData) {
+      setUser(userData);
+      console.log('User data:', userData); // Debug log to see user data structure
+    }
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -16,6 +27,11 @@ const Header = ({ toggleSidebar, user, theme }) => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <header className={`${theme.headerGradient} text-white p-4 flex items-center justify-between`}>
@@ -40,7 +56,7 @@ const Header = ({ toggleSidebar, user, theme }) => {
         >
           {user?.avatar ? (
             <img 
-              src={user.avatar} 
+              src={`https://savefiles.org/${user.avatar}?shareable_link=509`}
               alt={user.firstName} 
               className="w-8 h-8 rounded-full object-cover border-2 border-white"
             />
@@ -55,14 +71,20 @@ const Header = ({ toggleSidebar, user, theme }) => {
         {showDropdown && (
           <div className={`absolute right-0 mt-2 w-48 ${theme.cardBg} rounded-lg shadow-lg py-2 z-50 border ${theme.borderColor}`}>
             <button 
-              onClick={() => {/* Handle profile click */}}
+              onClick={() => {
+                setShowDropdown(false);
+                navigate('/profile');
+              }}
               className={`w-full text-left px-4 py-2 ${theme.textColor} hover:bg-black/10 flex items-center gap-2`}
             >
               <FaUser className="opacity-70" />
               Profile
             </button>
             <button 
-              onClick={() => {/* Handle settings click */}}
+              onClick={() => {
+                setShowDropdown(false);
+                navigate('/settings');
+              }}
               className={`w-full text-left px-4 py-2 ${theme.textColor} hover:bg-black/10 flex items-center gap-2`}
             >
               <FaCog className="opacity-70" />
@@ -70,7 +92,7 @@ const Header = ({ toggleSidebar, user, theme }) => {
             </button>
             <div className={`border-t ${theme.borderColor} my-2`}></div>
             <button 
-              onClick={() => {/* Handle logout */}}
+              onClick={handleLogout}
               className="w-full text-left px-4 py-2 text-red-600 hover:bg-black/10 flex items-center gap-2"
             >
               <FaSignOutAlt className="opacity-70" />

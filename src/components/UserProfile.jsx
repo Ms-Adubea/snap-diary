@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { FaUser, FaCamera } from 'react-icons/fa';
 
-const UserProfile = ({ user, onUpdateProfile, theme }) => {
+const UserProfile = ({ user = {}, onUpdateProfile, theme }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        avatar: user.avatar
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        email: user.email || '',
+        avatar: user.avatar || ''
     });
 
     const handleImageChange = (e) => {
@@ -26,6 +26,10 @@ const UserProfile = ({ user, onUpdateProfile, theme }) => {
         onUpdateProfile(formData);
         setIsEditing(false);
     };
+
+    if (!user) {
+        return <div className="text-red-500">User data is not available.</div>;
+    }
 
     return (
         <div className={`p-6 ${theme.cardBg} rounded-lg shadow-md`}>
@@ -135,4 +139,4 @@ const UserProfile = ({ user, onUpdateProfile, theme }) => {
     );
 };
 
-export default UserProfile; 
+export default UserProfile;

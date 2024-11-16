@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Features from './components/Features';
 import Testimonials from './components/Testimonials';
 import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 
 const HomePage = () => {
   return (
@@ -10,7 +11,7 @@ const HomePage = () => {
       {/* Video Background */}
       <video
         className="fixed top-0 left-0 w-full h-full object-cover -z-20"
-        src="public/videos/hp-vid1.mp4"
+        src="/videos/hp-vid1.mp4"
         autoPlay
         loop
         muted
@@ -64,6 +65,7 @@ const HomePage = () => {
         </section>
 
         <Testimonials />
+        <Footer />
       </div>
     </div>
   );
