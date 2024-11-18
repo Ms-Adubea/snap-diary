@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { FaBars, FaUser, FaCog, FaSignOutAlt, FaHome } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
-import { getCurrentUser, logout } from '../services/auth';
+import { apiGetProfile, getCurrentUser, logout } from '../services/auth';
 
 const Header = ({ toggleSidebar, theme }) => {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -9,13 +9,17 @@ const Header = ({ toggleSidebar, theme }) => {
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const userData = getCurrentUser();
+  const getUserData = async () => {
+    const userData = await apiGetProfile();
+    console.log("userData", userData.data);
     if (userData) {
-      setUser(userData);
-      console.log('User data:', userData); // Debug log to see user data structure
+        setUser(userData.data);
     }
-  }, []);
+}
+
+useEffect(() => {
+    getUserData()
+}, []);
 
   useEffect(() => {
     const handleClickOutside = (event) => {

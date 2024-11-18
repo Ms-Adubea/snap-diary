@@ -3,6 +3,9 @@ import { apiClient } from "./config"
 export const apiGetEvents = async () => {
     return await apiClient.get('/events')
 }
+export const apiCountEvents = async () => {
+    return await apiClient.get('/events/count')
+}
 export const apiGetEvent = async (id) => {
     return await apiClient.get(`/events/${id}`)
 }

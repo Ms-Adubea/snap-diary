@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FaStar, FaEye, FaEdit, FaTrash } from 'react-icons/fa';
-import { apiGetPhotos, apiDeletePhoto, apiToggleFavorite } from '../services/photo';
+import { apiGetUserPhotos, apiDeletePhoto, apiToggleFavorite } from '../services/photo';
 import ViewEntry from './ViewEntry';
 import EditEntry from './EditEntry';
 import SearchBar from './SearchBar';
@@ -15,7 +15,7 @@ const ViewEntries = ({ theme }) => {
 
     const fetchEntries = async () => {
         try {
-            const response = await apiGetPhotos();
+            const response = await apiGetUserPhotos();
             setEntries(response.data);
             setFilteredEntries(response.data);
         } catch (error) {

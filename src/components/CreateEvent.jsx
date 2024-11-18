@@ -78,7 +78,7 @@ const CreateEvent = ({ onSave, theme }) => {
   };
 
   return (
-    <div className={`max-w-2xl mx-auto p-6 bg-red-200 rounded-lg ${theme.textColor}`}>
+    <div className={`max-w-2xl mx-auto p-6 ${theme.formBg} rounded-lg ${theme.textColor}`}>
       <div className="flex items-center gap-3 mb-6">
         <FaCalendar className={theme.buttonColor} />
         <h2 className="text-2xl font-bold">Create New Event</h2>

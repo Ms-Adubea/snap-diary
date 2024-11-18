@@ -1,11 +1,11 @@
 import { apiClient } from "./config"
 
-export const apiGetPhotos = async () => {
-    return await apiClient.get ( '/photos' )
-}
-// export const apiGetUserPhotos = async () => {
-//     return await apiClient.get('/users/me/photos' )
+// export const apiGetPhotos = async () => {
+//     return await apiClient.get ( '/photos' )
 // }
+export const apiGetUserPhotos = async () => {
+    return await apiClient.get('/users/me/photos' )
+}
 export const apiGetPhoto = async (id) => {
     return await apiClient.get(`/photos/${id}`)
 }

@@ -129,13 +129,13 @@ const Dashboard = () => {
   useEffect(() => {
   // Replace with actual API calls or local storage retrieval
   const fetchEntries = async () => {
-    const response = await fetch('/api/entries'); // Example API endpoint
+    const response = await fetch('/users/me/photos'); // Example API endpoint
     const data = await response.json();
     setEntries(data);
   };
 
   const fetchEvents = async () => {
-    const response = await fetch('/api/events'); // Example API endpoint
+    const response = await fetch('/events'); // Example API endpoint
     const data = await response.json();
     setEvents(data);
   };
