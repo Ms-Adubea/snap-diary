@@ -23,10 +23,10 @@ const themes = [
     headerGradient: 'bg-gray-800',
     textColor: 'text-white',
     bgColor: 'bg-gray-900',
-    cardBg: 'bg-gray-400',
+    cardBg: 'bg-gray-600',
     buttonColor: 'bg-blue-600 hover:bg-blue-700',
     borderColor: 'border-gray-700',
-    formBg: 'bg-gray-200'
+    formBg: 'bg-gray-400'
   },
   {
     id: 'nature',

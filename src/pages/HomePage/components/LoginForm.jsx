@@ -123,7 +123,7 @@ const LoginForm = () => {
                     </form>
 
                     <div className="text-center mt-4">
-                        <p className="text-sm text-white">
+                        <p className="text-sm text-gray-900 font-medium">
                             Don't have an account?{' '}
                             <Link to="/signup" className="font-medium text-orange-600 hover:text-orange-500">
                                 Sign Up

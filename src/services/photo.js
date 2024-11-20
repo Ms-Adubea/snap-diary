@@ -51,7 +51,7 @@ export const apiDeleteFavorite = async (id) => {
     return await apiClient.delete(`/photos/${id}/favorite`)
 }
 export const apiPostFavorite = async (id) => {
-    return await apiClient.post('/photos/:id/favorite')
+    return await apiClient.post(`/photos/${id}/favorite`)
 }
 // export const apiToggleFavorite = async (id) => {
 //     return await apiClient.patch(`/photos/${id}/favorite`)

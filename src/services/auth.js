@@ -46,13 +46,26 @@ export const apiGetProfile = async (payload) => {
     return await apiClient.get ( '/users/me')
 }
 
-export const apiUpdateProfile = async (payload) => {
-    return await apiClient.patch ( '/users/me', payload)
-}
+export const apiUpdateProfile = async (formData) => {
+    try {
+        const response = await apiClient.patch('/users/me', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        return response;
+    } catch (error) {
+        throw error;
+    }
+};
 
 export const logout = () => {
+    // Clear all user-related data from localStorage
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    localStorage.removeItem('themeId');
+    
+    // Clear auth header
     delete apiClient.defaults.headers.common['Authorization'];
 };
 
