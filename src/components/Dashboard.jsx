@@ -21,8 +21,9 @@ const themes = [
     textColor: 'text-gray-800',
     bgColor: 'bg-gray-50',
     cardBg: 'bg-white',
-    buttonColor: 'bg-orange-600 hover:bg-orange-700',
-    borderColor: 'border-gray-200'
+    buttonColor: 'bg-pink-600 hover:bg-pink-700',
+    borderColor: 'border-gray-200',
+    formBg: 'bg-red-200'
   },
   {
     id: 'dark',
@@ -56,7 +57,12 @@ const Dashboard = () => {
   const [events, setEvents] = useState([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
-  const [currentTheme, setCurrentTheme] = useState(themes[0]);
+  const [currentTheme, setCurrentTheme] = useState(() => {
+    const savedThemeId = localStorage.getItem('themeId');
+    return savedThemeId ? 
+      themes.find(theme => theme.id === savedThemeId) || themes[0] : 
+      themes[0];
+  });
   const [user, setUser] = useState({
     firstName: '',
     lastName: '',

@@ -30,6 +30,8 @@ const ViewEntries = ({ theme }) => {
         }
     };
 
+    console.log(entries);
+
     useEffect(() => {
         fetchEntries();
     }, []);
@@ -144,7 +146,7 @@ const ViewEntries = ({ theme }) => {
                     >
                         {entry.images && entry.images[0] && (
                             <img
-                                src={`https://savefiles.org/${entry.image}?shareable_link=509`}
+                                src={`https://savefiles.org/${entry.images[0]}?shareable_link=509`}
                                 alt={entry.title}
                                 className="w-full h-48 object-cover"
                             />
