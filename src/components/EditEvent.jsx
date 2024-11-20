@@ -4,8 +4,8 @@ import { apiUpdateEvent } from '../services/event';
 import Swal from 'sweetalert2';
 
 const EditEvent = ({ event, onClose, onUpdate, theme }) => {
-    const [eventName, setEventName] = useState(event.eventName);
-    const [eventDescription, setEventDescription] = useState(event.eventDescription);
+    const [title, setTitle] = useState(event.title);
+    const [description, setDescription] = useState(event.description);
     const [startDate, setStartDate] = useState(event.startDate);
     const [endDate, setEndDate] = useState(event.endDate);
     const [location, setLocation] = useState(event.location);
@@ -17,8 +17,8 @@ const EditEvent = ({ event, onClose, onUpdate, theme }) => {
 
         try {
             const eventData = {
-                eventName,
-                eventDescription,
+                title,
+                description,
                 startDate,
                 endDate,
                 location,
@@ -62,8 +62,8 @@ const EditEvent = ({ event, onClose, onUpdate, theme }) => {
                         <label className="block text-sm font-medium mb-2">Event Name</label>
                         <input
                             type="text"
-                            value={eventName}
-                            onChange={(e) => setEventName(e.target.value)}
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
                             className={`w-full p-2 rounded-lg ${theme.borderColor} focus:ring-2`}
                             required
                         />
@@ -72,8 +72,8 @@ const EditEvent = ({ event, onClose, onUpdate, theme }) => {
                     <div>
                         <label className="block text-sm font-medium mb-2">Description</label>
                         <textarea
-                            value={eventDescription}
-                            onChange={(e) => setEventDescription(e.target.value)}
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
                             className={`w-full p-2 rounded-lg h-32 ${theme.borderColor} focus:ring-2`}
                         />
                     </div>

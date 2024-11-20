@@ -11,7 +11,7 @@ const ViewEntry = ({ entry, onClose, onToggleFavorite, theme }) => {
                         <button
                             onClick={() => onToggleFavorite(entry.id)}
                             className={`p-2 rounded-full transition-colors ${
-                                entry.isFavorite ? 'text-yellow-500' : 'text-gray-400'
+                                entry.favorites ? 'text-yellow-500' : 'text-gray-400'
                             }`}
                         >
                             <FaStar />
@@ -26,16 +26,13 @@ const ViewEntry = ({ entry, onClose, onToggleFavorite, theme }) => {
                 </div>
                 
                 <div className="p-4">
-                    {entry.images && entry.images.length > 0 && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                            {entry.images.map((image, index) => (
-                                <img
-                                    key={index}
-                                    src={`https://savefiles.org/${entry.images}?shareable_link=509`}
-                                    alt={`${entry.title} ${index + 1}`}
-                                    className="w-full h-64 object-cover rounded-lg"
-                                />
-                            ))}
+                    {entry.image && (
+                        <div className="mb-4">
+                            <img
+                                src={`https://savefiles.org/${entry.image}?shareable_link=509`}
+                                alt={entry.title}
+                                className="w-full h-64 object-cover rounded-lg"
+                            />
                         </div>
                     )}
                     
@@ -51,6 +48,9 @@ const ViewEntry = ({ entry, onClose, onToggleFavorite, theme }) => {
                     
                     <div className="mt-4 text-sm text-gray-500">
                         Created on: {new Date(entry.createdAt).toLocaleDateString()}
+                    </div>
+                    <div className="mt-4 text-sm text-gray-500">
+                        Updated on: {new Date(entry.updatedAt).toLocaleDateString()}
                     </div>
                 </div>
             </div>

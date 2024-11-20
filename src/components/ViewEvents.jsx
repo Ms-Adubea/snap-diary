@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { FaEye, FaEdit, FaTrash, FaCalendar, FaStar } from 'react-icons/fa';
-import { apiGetEvents, apiDeleteEvent, apiToggleEventFavorite } from '../services/event';
+import { FaEye, FaEdit, FaTrash, FaCalendar } from 'react-icons/fa';
+import { apiGetEvents, apiDeleteEvent } from '../services/event';
 import EditEvent from './EditEvent';
 import SearchBar from './SearchBar';
 import Swal from 'sweetalert2';
-import { sampleEvents } from '../data/sampleEvents'; // Import sample data
 
 const ViewEvents = ({ theme }) => {
   const [events, setEvents] = useState([]);
@@ -15,11 +14,9 @@ const ViewEvents = ({ theme }) => {
 
   const fetchEvents = async () => {
     try {
-      // For development, use sample data
-      // const response = await apiGetEvents();
-      // setEvents(response.data);
-      setEvents(sampleEvents);
-      setFilteredEvents(sampleEvents);
+      const response = await apiGetEvents();
+      setEvents(response.data);
+      setFilteredEvents(response.data);
     } catch (error) {
       console.error('Error fetching events:', error);
       Swal.fire({
@@ -42,8 +39,8 @@ const ViewEvents = ({ theme }) => {
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       filtered = filtered.filter(event => 
-        event.eventName.toLowerCase().includes(term) ||
-        event.eventDescription?.toLowerCase().includes(term) ||
+        event.title.toLowerCase().includes(term) ||
+        event.description?.toLowerCase().includes(term) ||
         event.location?.toLowerCase().includes(term)
       );
     }
@@ -89,29 +86,20 @@ const ViewEvents = ({ theme }) => {
     }
   };
 
-  const handleToggleFavorite = async (id) => {
+  const handleUpdate = async (updatedEvent) => {
     try {
-      await apiToggleEventFavorite(id);
-      const updatedEvents = events.map(event => 
-        event.id === id 
-          ? { ...event, isFavorite: !event.isFavorite }
-          : event
+      setEvents(prevEvents => 
+        prevEvents.map(event => 
+          event.id === updatedEvent.id ? updatedEvent : event
+        )
       );
-      setEvents(updatedEvents);
-      setFilteredEvents(
-        filteredEvents.map(event => 
-          event.id === id 
-            ? { ...event, isFavorite: !event.isFavorite }
-            : event
+      setFilteredEvents(prevEvents => 
+        prevEvents.map(event => 
+          event.id === updatedEvent.id ? updatedEvent : event
         )
       );
     } catch (error) {
-      console.error('Error toggling favorite:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to update favorite status',
-      });
+      console.error('Error updating event:', error);
     }
   };
 
@@ -137,7 +125,7 @@ const ViewEvents = ({ theme }) => {
           >
             <div className="p-4">
               <div className="flex justify-between items-start mb-4">
-                <h3 className="text-xl font-semibold">{event.eventName}</h3>
+                <h3 className="text-xl font-semibold">{event.title}</h3>
                 <div className="flex gap-2">
                   <button
                     onClick={() => setSelectedEvent(event)}
@@ -154,13 +142,6 @@ const ViewEvents = ({ theme }) => {
                     <FaEdit />
                   </button>
                   <button
-                    onClick={() => handleToggleFavorite(event.id)}
-                    className={`${event.isFavorite ? 'text-yellow-500' : 'text-gray-400'} hover:text-yellow-500`}
-                    title={event.isFavorite ? "Remove from favorites" : "Add to favorites"}
-                  >
-                    <FaStar />
-                  </button>
-                  <button
                     onClick={() => handleDelete(event.id)}
                     className="text-red-500 hover:text-red-600"
                     title="Delete"
@@ -171,7 +152,7 @@ const ViewEvents = ({ theme }) => {
               </div>
               
               <p className="text-sm opacity-75 mb-4">
-                {event.eventDescription}
+                {event.description}
               </p>
               
               <div className="flex items-center gap-2 text-sm opacity-75">
@@ -186,66 +167,16 @@ const ViewEvents = ({ theme }) => {
                   📍 {event.location}
                 </p>
               )}
-
-              {event.entries && event.entries.length > 0 && (
-                <div className="mt-4 pt-4 border-t border-gray-200">
-                  <p className="text-sm font-medium mb-2">
-                    {event.entries.length} {event.entries.length === 1 ? 'Memory' : 'Memories'}
-                  </p>
-                  <div className="flex -space-x-2 overflow-hidden">
-                    {event.entries.slice(0, 3).map((entry) => (
-                      <div
-                        key={entry.id}
-                        className="inline-block h-8 w-8 rounded-full ring-2 ring-white"
-                      >
-                        {entry.images && entry.images[0] ? (
-                          <img
-                            src={entry.images[0].url}
-                            alt={entry.title}
-                            className="h-full w-full object-cover rounded-full"
-                          />
-                        ) : (
-                          <div className="h-full w-full bg-gray-300 rounded-full" />
-                        )}
-                      </div>
-                    ))}
-                    {event.entries.length > 3 && (
-                      <div className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-300 ring-2 ring-white">
-                        <span className="text-xs font-medium">
-                          +{event.entries.length - 3}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         ))}
       </div>
 
-      {/* Event Details Modal */}
-      {selectedEvent && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className={`${theme.cardBg} max-w-3xl w-full mx-4 rounded-lg shadow-xl overflow-hidden`}>
-            {/* ... Modal content ... */}
-          </div>
-        </div>
-      )}
-
       {editingEvent && (
         <EditEvent
           event={editingEvent}
           onClose={() => setEditingEvent(null)}
-          onUpdate={(updatedEvent) => {
-            setEvents(events.map(event => 
-              event.id === updatedEvent.id ? updatedEvent : event
-            ));
-            setFilteredEvents(filteredEvents.map(event => 
-              event.id === updatedEvent.id ? updatedEvent : event
-            ));
-            setEditingEvent(null);
-          }}
+          onUpdate={handleUpdate}
           theme={theme}
         />
       )}

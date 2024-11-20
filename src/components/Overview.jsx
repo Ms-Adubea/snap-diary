@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaPlus, FaCalendarPlus } from 'react-icons/fa';
 import { apiGetProfile, getCurrentUser } from '../services/auth';
+import Stats from './Stats';
 
 const Overview = ({ entries, onSelect, theme }) => {
     const [user, setUser] = useState(null);
@@ -46,6 +47,9 @@ const Overview = ({ entries, onSelect, theme }) => {
                     </button>
                 </div>
             </div>
+
+            {/* Stats Section */}
+            <Stats theme={theme} />
 
             {/* Entries Sections Container */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
