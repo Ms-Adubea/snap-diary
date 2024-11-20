@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FaStar, FaEye, FaEdit, FaTrash } from 'react-icons/fa';
-import { apiGetUserPhotos, apiDeletePhoto, apiToggleFavorite } from '../services/photo';
+import { apiGetUserPhotos, apiDeletePhoto, apiPostFavorite } from '../services/photo';
 import ViewEntry from './ViewEntry';
 import EditEntry from './EditEntry';
 import SearchBar from './SearchBar';
@@ -86,7 +86,7 @@ const ViewEntries = ({ theme }) => {
 
     const handleToggleFavorite = async (id) => {
         try {
-            await apiToggleFavorite(id);
+            await apiPostFavorite(id);
             const updatedEntries = entries.map(entry => 
                 entry.id === id 
                     ? { ...entry, isFavorite: !entry.isFavorite }
@@ -110,16 +110,16 @@ const ViewEntries = ({ theme }) => {
         }
     };
 
-    const handleUpdate = (updatedEntry) => {
-        const updatedEntries = entries.map(entry =>
-            entry.id === updatedEntry.id ? updatedEntry : entry
-        );
-        setEntries(updatedEntries);
-        setFilteredEntries(
-            filteredEntries.map(entry =>
-                entry.id === updatedEntry.id ? updatedEntry : entry
-            )
-        );
+    const handleUpdate = async (updatedEntry) => {
+        try {
+            setEntries(prevEntries => 
+                prevEntries.map(entry => 
+                    entry.id === updatedEntry.id ? updatedEntry : entry
+                )
+            );
+        } catch (error) {
+            console.error('Error updating entry:', error);
+        }
     };
 
     if (loading) {

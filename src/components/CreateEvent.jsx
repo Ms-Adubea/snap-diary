@@ -4,8 +4,8 @@ import { apiCreateEvent } from '../services/event';
 import Swal from 'sweetalert2';
 
 const CreateEvent = ({ onSave, theme }) => {
-  const [eventName, setEventName] = useState('');
-  const [eventDescription, setEventDescription] = useState('');
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [location, setLocation] = useState('');
@@ -35,8 +35,8 @@ const CreateEvent = ({ onSave, theme }) => {
     try {
       setLoading(true);
       const eventData = {
-        eventName,
-        eventDescription,
+        title,
+        description,
         startDate,
         endDate,
         location,
@@ -54,8 +54,8 @@ const CreateEvent = ({ onSave, theme }) => {
         });
 
         // Reset form
-        setEventName('');
-        setEventDescription('');
+        setTitle('');
+        setDescription('');
         setStartDate('');
         setEndDate('');
         setLocation('');
@@ -90,8 +90,8 @@ const CreateEvent = ({ onSave, theme }) => {
           <label className="block text-sm font-medium mb-2">Event Name</label>
           <input
             type="text"
-            value={eventName}
-            onChange={(e) => setEventName(e.target.value)}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
             className={`w-full p-2 rounded-lg ${theme.cardBg} ${theme.borderColor} focus:ring-2`}
             placeholder="e.g., Summer Vacation 2024"
             required
@@ -102,8 +102,8 @@ const CreateEvent = ({ onSave, theme }) => {
         <div>
           <label className="block text-sm font-medium mb-2">Description</label>
           <textarea
-            value={eventDescription}
-            onChange={(e) => setEventDescription(e.target.value)}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
             className={`w-full p-2 rounded-lg h-32 ${theme.cardBg} ${theme.borderColor} focus:ring-2`}
             placeholder="Describe your event..."
           />

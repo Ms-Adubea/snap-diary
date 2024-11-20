@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { FaImage, FaStar, FaTimes } from 'react-icons/fa';
 import Swal from 'sweetalert2';
-import { apiPostPhotos } from '../services/photo';
+import { apiPostPhotos, apiPostFavorite } from '../services/photo';
 
 const AddEntry = ({ events, onSave, theme }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [selectedEvent, setSelectedEvent] = useState('');
   const [images, setImages] = useState([]);
-  const [isFavorite, setIsFavorite] = useState(false);
+  const [favorites, setFavorites] = useState(false);
   const [previewUrls, setPreviewUrls] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -67,16 +67,24 @@ const AddEntry = ({ events, onSave, theme }) => {
       if (selectedEvent) {
         formData.append('eventId', selectedEvent);
       }
-      formData.append('isFavorite', isFavorite);
       
-      // Append each image with a unique key
-      images.forEach((image, index) => {
-        formData.append(`images`, image);
+      // Append each image
+      images.forEach((image) => {
+        formData.append('images', image);
       });
 
       const response = await apiPostPhotos(formData);
       
       if (response.data) {
+        // If favorites is true, make a separate call to mark as favorite
+        if (favorites) {
+          try {
+            await apiPostFavorite(response.data.id);
+          } catch (favoriteError) {
+            console.error('Error marking as favorite:', favoriteError);
+          }
+        }
+
         Swal.fire({
           icon: 'success',
           title: 'Entry Created!',
@@ -85,15 +93,14 @@ const AddEntry = ({ events, onSave, theme }) => {
           timer: 2000,
         });
 
-        // Reset form only after successful submission
+        // Reset form
         setTitle('');
         setDescription('');
         setSelectedEvent('');
         setImages([]);
         setPreviewUrls([]);
-        setIsFavorite(false);
+        setFavorites(false);
 
-        // Call onSave if provided
         if (onSave) {
           onSave(response.data);
         }
@@ -200,15 +207,15 @@ const AddEntry = ({ events, onSave, theme }) => {
         <div className="flex items-center">
           <button
             type="button"
-            onClick={() => setIsFavorite(!isFavorite)}
+            onClick={() => setFavorites(!favorites)}
             className={`p-2 rounded-full transition-colors ${
-              isFavorite ? 'text-yellow-500' : 'text-gray-400'
+              favorites ? 'text-yellow-500' : 'text-gray-400'
             }`}
           >
             <FaStar className="text-xl" />
           </button>
           <span className="ml-2 text-sm">
-            {isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+            {favorites ? 'Remove from favorites' : 'Add to favorites'}
           </span>
         </div>
 

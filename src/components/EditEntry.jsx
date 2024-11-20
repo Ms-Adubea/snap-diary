@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { FaImage, FaStar, FaTimes } from 'react-icons/fa';
 import { apiUpdatePhoto } from '../services/photo';
 import Swal from 'sweetalert2';
@@ -6,7 +6,7 @@ import Swal from 'sweetalert2';
 const EditEntry = ({ entry, onClose, onUpdate, theme }) => {
     const [title, setTitle] = useState(entry.title);
     const [description, setDescription] = useState(entry.description);
-    const [isFavorite, setIsFavorite] = useState(entry.isFavorite);
+    const [favorites, setFavorites] = useState(entry.favorites);
     const [loading, setLoading] = useState(false);
     const [newImages, setNewImages] = useState([]);
     const [previewUrls, setPreviewUrls] = useState([]);
@@ -26,28 +26,32 @@ const EditEntry = ({ entry, onClose, onUpdate, theme }) => {
             const formData = new FormData();
             formData.append('title', title);
             formData.append('description', description);
-            formData.append('isFavorite', isFavorite);
+            
+            // Append new images if any
             newImages.forEach(image => {
                 formData.append('images', image);
             });
 
             const response = await apiUpdatePhoto(entry.id, formData);
             
-            Swal.fire({
-                icon: 'success',
-                title: 'Entry Updated!',
-                showConfirmButton: false,
-                timer: 1500
-            });
+            if (response.data) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Entry Updated!',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
 
-            onUpdate(response.data);
-            onClose();
+                // Pass the updated data back to parent
+                onUpdate(response.data);
+                onClose();
+            }
         } catch (error) {
             console.error('Error updating entry:', error);
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: 'Failed to update entry'
+                text: error.response?.data?.message || 'Failed to update entry'
             });
         } finally {
             setLoading(false);
@@ -130,21 +134,6 @@ const EditEntry = ({ entry, onClose, onUpdate, theme }) => {
                             ))}
                         </div>
                     )}
-
-                    <div className="flex items-center">
-                        <button
-                            type="button"
-                            onClick={() => setIsFavorite(!isFavorite)}
-                            className={`p-2 rounded-full transition-colors ${
-                                isFavorite ? 'text-yellow-500' : 'text-gray-400'
-                            }`}
-                        >
-                            <FaStar className="text-xl" />
-                        </button>
-                        <span className="ml-2 text-sm">
-                            {isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-                        </span>
-                    </div>
 
                     <div className="flex justify-end gap-4">
                         <button
