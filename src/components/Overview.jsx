@@ -1,26 +1,47 @@
 import React, { useState, useEffect } from 'react';
-import { FaPlus, FaCalendarPlus } from 'react-icons/fa';
-import { apiGetProfile, getCurrentUser } from '../services/auth';
+import { FaPlus, FaCalendarPlus, FaImage } from 'react-icons/fa';
+import { getCurrentUser } from '../services/auth';
+import { apiGetUserPhotos } from '../services/photo';
 import Stats from './Stats';
 
-const Overview = ({ entries, onSelect, theme }) => {
+const Overview = ({ onSelect, theme }) => {
     const [user, setUser] = useState(null);
-    const recentEntries = entries
-        .sort((a, b) => new Date(b.date) - new Date(a.date))
-        .slice(0, 5);
-
-    const favoriteEntries = entries.filter(entry => entry.isFavorite).slice(0, 5);
-    const getUserData = async () => {
-        const userData = await apiGetProfile();
-        console.log(userData.data);
-        if (userData) {
-            setUser(userData.data);
-        }
-    };
+    const [entries, setEntries] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        getUserData()
+        const userData = getCurrentUser();
+        if (userData) {
+            setUser(userData);
+        }
     }, []);
+
+    useEffect(() => {
+        const fetchEntries = async () => {
+            try {
+                const response = await apiGetUserPhotos();
+                // Sort entries by creation date, newest first
+                const sortedEntries = response.data.sort((a, b) => 
+                    new Date(b.createdAt) - new Date(a.createdAt)
+                );
+                setEntries(sortedEntries);
+            } catch (error) {
+                console.error('Error fetching entries:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchEntries();
+    }, []);
+
+    // Get recent entries (first 5)
+    const recentEntries = entries.slice(0, 5);
+
+    // Get favorite entries (first 5)
+    const favoriteEntries = entries
+        .filter(entry => entry.favorites)
+        .slice(0, 5);
 
     return (
         <div className="space-y-8">
@@ -51,54 +72,82 @@ const Overview = ({ entries, onSelect, theme }) => {
             {/* Stats Section */}
             <Stats theme={theme} />
 
-            {/* Entries Sections Container */}
+            {/* Recent and Favorite Entries */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Recent Entries Section */}
-                <div className={`${theme.cardBg} p-6 rounded-lg shadow-md h-full`}>
+                {/* Recent Entries */}
+                <div className={`${theme.cardBg} p-6 rounded-lg shadow-md`}>
                     <h2 className="text-xl font-semibold mb-4">Recent Entries</h2>
-                    {recentEntries.length > 0 ? (
-                        <div className="space-y-4">
-                            {recentEntries.map(entry => (
+                    <div className="space-y-4">
+                        {recentEntries.length > 0 ? (
+                            recentEntries.map(entry => (
                                 <div
                                     key={entry.id}
-                                    className={`p-4 ${theme.borderColor} rounded-lg hover:shadow-md transition-shadow cursor-pointer`}
                                     onClick={() => onSelect("viewEntries", entry.id)}
+                                    className={`p-4 ${theme.borderColor} rounded-lg hover:shadow-md transition-shadow cursor-pointer`}
                                 >
-                                    <h3 className="font-medium">{entry.title}</h3>
-                                    <p className="text-sm opacity-75">
-                                        {new Date(entry.date).toLocaleDateString()}
-                                    </p>
+                                    <div className="flex gap-4">
+                                        {entry.images && entry.images[0] ? (
+                                            <img
+                                                src={`https://savefiles.org/secure/uploads/${entry.images[0]}?shareable_link=509`}
+                                                alt={entry.title}
+                                                className="w-20 h-20 object-cover rounded-lg"
+                                            />
+                                        ) : (
+                                            <div className="w-20 h-20 bg-gray-200 flex items-center justify-center rounded-lg">
+                                                <FaImage className="text-gray-400 text-2xl" />
+                                            </div>
+                                        )}
+                                        <div>
+                                            <h3 className="font-medium">{entry.title}</h3>
+                                            <p className="text-sm opacity-75">
+                                                {new Date(entry.createdAt).toLocaleDateString()}
+                                            </p>
+                                        </div>
+                                    </div>
                                 </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <p className="opacity-75">No entries yet. Start by creating one!</p>
-                    )}
+                            ))
+                        ) : (
+                            <p className="text-gray-500">No entries yet. Start by creating one!</p>
+                        )}
+                    </div>
                 </div>
 
-                {/* Favorite Entries Section */}
-                <div className={`${theme.cardBg} p-6 rounded-lg shadow-md h-full`}>
+                {/* Favorite Entries */}
+                <div className={`${theme.cardBg} p-6 rounded-lg shadow-md`}>
                     <h2 className="text-xl font-semibold mb-4">Favorite Entries</h2>
-                    {favoriteEntries.length > 0 ? (
-                        <div className="space-y-4">
-                            {favoriteEntries.map(entry => (
+                    <div className="space-y-4">
+                        {favoriteEntries.length > 0 ? (
+                            favoriteEntries.map(entry => (
                                 <div
                                     key={entry.id}
-                                    className={`p-4 ${theme.borderColor} rounded-lg hover:shadow-md transition-shadow cursor-pointer`}
                                     onClick={() => onSelect("viewEntries", entry.id)}
+                                    className={`p-4 ${theme.borderColor} rounded-lg hover:shadow-md transition-shadow cursor-pointer`}
                                 >
-                                    <h3 className="font-medium">{entry.title}</h3>
-                                    <p className="text-sm opacity-75">
-                                        {new Date(entry.date).toLocaleDateString()}
-                                    </p>
+                                    <div className="flex gap-4">
+                                        {entry.images && entry.images[0] ? (
+                                            <img
+                                                src={`https://savefiles.org/secure/uploads/${entry.images[0]}?shareable_link=509`}
+                                                alt={entry.title}
+                                                className="w-20 h-20 object-cover rounded-lg"
+                                            />
+                                        ) : (
+                                            <div className="w-20 h-20 bg-gray-200 flex items-center justify-center rounded-lg">
+                                                <FaImage className="text-gray-400 text-2xl" />
+                                            </div>
+                                        )}
+                                        <div>
+                                            <h3 className="font-medium">{entry.title}</h3>
+                                            <p className="text-sm opacity-75">
+                                                {new Date(entry.createdAt).toLocaleDateString()}
+                                            </p>
+                                        </div>
+                                    </div>
                                 </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <p className="opacity-75">
-                            No favorite entries yet. Mark entries as favorite to see them here!
-                        </p>
-                    )}
+                            ))
+                        ) : (
+                            <p className="text-gray-500">No favorite entries yet. Mark entries as favorite to see them here!</p>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

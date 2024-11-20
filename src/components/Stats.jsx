@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FaBook, FaCalendar } from 'react-icons/fa';
 import { apiGetUserPhotos } from '../services/photo';
 import { apiGetEvents } from '../services/event';
+import { IoImagesOutline } from "react-icons/io5";
 
 const Stats = ({ theme }) => {
     const [stats, setStats] = useState({
@@ -46,7 +47,7 @@ const Stats = ({ theme }) => {
             <div className={`${theme.cardBg} p-6 rounded-lg shadow-md flex items-center justify-between`}>
                 <div className="flex items-center gap-3">
                     <div className={`p-3 rounded-full ${theme.buttonColor} bg-opacity-10`}>
-                        <FaCalendar className={`text-2xl ${theme.buttonColor}`} />
+                        <IoImagesOutline className={`text-2xl ${theme.buttonColor}`} />
                     </div>
                     <div>
                         <h3 className="text-lg font-semibold">Total Collections</h3>

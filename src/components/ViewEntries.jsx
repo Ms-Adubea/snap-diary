@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaStar, FaEye, FaEdit, FaTrash } from 'react-icons/fa';
+import { FaStar, FaEye, FaEdit, FaTrash, FaImage } from 'react-icons/fa';
 import { apiGetUserPhotos, apiDeletePhoto, apiPostFavorite } from '../services/photo';
 import ViewEntry from './ViewEntry';
 import EditEntry from './EditEntry';
@@ -16,8 +16,11 @@ const ViewEntries = ({ theme }) => {
     const fetchEntries = async () => {
         try {
             const response = await apiGetUserPhotos();
-            setEntries(response.data);
-            setFilteredEntries(response.data);
+            const sortedEntries = response.data.sort((a, b) => 
+                new Date(b.createdAt) - new Date(a.createdAt)
+            );
+            setEntries(sortedEntries);
+            setFilteredEntries(sortedEntries);
         } catch (error) {
             console.error('Error fetching entries:', error);
             Swal.fire({
@@ -144,13 +147,19 @@ const ViewEntries = ({ theme }) => {
                         key={entry.id} 
                         className={`${theme.cardBg} rounded-lg shadow-md overflow-hidden`}
                     >
-                        {entry.images && entry.images[0] && (
-                            <img
-                                src={`https://savefiles.org/${entry.images[0]}?shareable_link=509`}
-                                alt={entry.title}
-                                className="w-full h-48 object-cover"
-                            />
-                        )}
+                        <div className="aspect-w-16 aspect-h-9">
+                            {entry.images && entry.images[0] ? (
+                                <img
+                                    src={`https://savefiles.org/secure/uploads/${entry.images[0]}?shareable_link=509`}
+                                    alt={entry.title}
+                                    className="w-full h-48 object-cover"
+                                />
+                            ) : (
+                                <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
+                                    <FaImage className="text-4xl text-gray-400" />
+                                </div>
+                            )}
+                        </div>
                         
                         <div className="p-4">
                             <h3 className="text-lg font-semibold mb-2">{entry.title}</h3>

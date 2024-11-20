@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { FaEye, FaEdit, FaTrash, FaCalendar } from 'react-icons/fa';
+import { FaEye, FaEdit, FaTrash, FaCalendar, FaImage } from 'react-icons/fa';
 import { apiGetEvents, apiDeleteEvent } from '../services/event';
 import EditEvent from './EditEvent';
 import SearchBar from './SearchBar';
 import Swal from 'sweetalert2';
+import ViewEventEntries from './ViewEventEntries';
 
 const ViewEvents = ({ theme }) => {
   const [events, setEvents] = useState([]);
@@ -15,8 +16,11 @@ const ViewEvents = ({ theme }) => {
   const fetchEvents = async () => {
     try {
       const response = await apiGetEvents();
-      setEvents(response.data);
-      setFilteredEvents(response.data);
+      const sortedEvents = response.data.sort((a, b) => 
+        new Date(b.createdAt) - new Date(a.createdAt)
+      );
+      setEvents(sortedEvents);
+      setFilteredEvents(sortedEvents);
     } catch (error) {
       console.error('Error fetching events:', error);
       Swal.fire({
@@ -123,34 +127,22 @@ const ViewEvents = ({ theme }) => {
             key={event.id} 
             className={`${theme.cardBg} rounded-lg shadow-md overflow-hidden`}
           >
-            <div className="p-4">
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="text-xl font-semibold">{event.title}</h3>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setSelectedEvent(event)}
-                    className="text-blue-500 hover:text-blue-600"
-                    title="View"
-                  >
-                    <FaEye />
-                  </button>
-                  <button
-                    onClick={() => setEditingEvent(event)}
-                    className="text-green-500 hover:text-green-600"
-                    title="Edit"
-                  >
-                    <FaEdit />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(event.id)}
-                    className="text-red-500 hover:text-red-600"
-                    title="Delete"
-                  >
-                    <FaTrash />
-                  </button>
+            <div className="aspect-w-16 aspect-h-9">
+              {event.entries && event.entries[0]?.images?.[0] ? (
+                <img
+                  src={`https://savefiles.org/secure/uploads/${event.entries[0].images[0]}?shareable_link=509`}
+                  alt={event.title}
+                  className="w-full h-48 object-cover"
+                />
+              ) : (
+                <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
+                  <FaImage className="text-4xl text-gray-400" />
                 </div>
-              </div>
-              
+              )}
+            </div>
+
+            <div className="p-4">
+              <h3 className="text-xl font-semibold">{event.title}</h3>
               <p className="text-sm opacity-75 mb-4">
                 {event.description}
               </p>
@@ -167,6 +159,33 @@ const ViewEvents = ({ theme }) => {
                   📍 {event.location}
                 </p>
               )}
+
+              <div className="mt-4 flex justify-between items-center">
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setSelectedEvent(event)}
+                    className="text-blue-500 hover:text-blue-600"
+                    title="View"
+                  >
+                    <FaEye />
+                  </button>
+                  <button
+                    onClick={() => setEditingEvent(event)}
+                    className="text-green-500 hover:text-green-600"
+                    title="Edit"
+                  >
+                    <FaEdit />
+                  </button>
+                </div>
+                
+                <button
+                  onClick={() => handleDelete(event.id)}
+                  className="text-red-500 hover:text-red-600"
+                  title="Delete"
+                >
+                  <FaTrash />
+                </button>
+              </div>
             </div>
           </div>
         ))}
@@ -177,6 +196,14 @@ const ViewEvents = ({ theme }) => {
           event={editingEvent}
           onClose={() => setEditingEvent(null)}
           onUpdate={handleUpdate}
+          theme={theme}
+        />
+      )}
+
+      {selectedEvent && (
+        <ViewEventEntries
+          event={selectedEvent}
+          onClose={() => setSelectedEvent(null)}
           theme={theme}
         />
       )}
