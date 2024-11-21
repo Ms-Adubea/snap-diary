@@ -1,13 +1,7 @@
 import { apiClient } from "./config"
 
 export const apiGetEvents = async () => {
-    try {
-        const response = await apiClient.get('/users/me/events')
-        console.log('Events response:', response)
-        return response
-    } catch (error) {
-        throw error
-    }
+    return await apiClient.get('/users/me/events')
 }
 export const apiCountEvents = async () => {
     return await apiClient.get('/events/count')
@@ -17,7 +11,6 @@ export const apiGetEvent = async (id) => {
 }
 export const apiCreateEvent = async (eventData) => {
     try {
-        console.log('Creating event with data:', eventData)
         const response = await apiClient.post('/events', eventData)
         return response
     } catch (error) {

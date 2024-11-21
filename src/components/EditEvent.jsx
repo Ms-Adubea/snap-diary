@@ -1,46 +1,67 @@
 import React, { useState } from 'react';
-import { FaCalendar, FaTimes } from 'react-icons/fa';
+import { FaCalendar } from 'react-icons/fa';
 import { apiUpdateEvent } from '../services/event';
 import Swal from 'sweetalert2';
 
 const EditEvent = ({ event, onClose, onUpdate, theme }) => {
     const [title, setTitle] = useState(event.title);
     const [description, setDescription] = useState(event.description);
-    const [startDate, setStartDate] = useState(event.startDate);
-    const [endDate, setEndDate] = useState(event.endDate);
-    const [location, setLocation] = useState(event.location);
+    const [date, setDate] = useState(event.date ? new Date(event.date).toISOString().split('T')[0] : '');
+    const [location, setLocation] = useState(event.location || '');
     const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
+        
+        if (!title.trim()) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Event Name Required',
+                text: 'Please enter a name for your event',
+            });
+            return;
+        }
+
+        if (!date) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Date Required',
+                text: 'Please select a date',
+            });
+            return;
+        }
 
         try {
+            setLoading(true);
             const eventData = {
                 title,
                 description,
-                startDate,
-                endDate,
+                date,
                 location,
             };
 
             const response = await apiUpdateEvent(event.id, eventData);
             
-            Swal.fire({
-                icon: 'success',
-                title: 'Event Updated!',
-                showConfirmButton: false,
-                timer: 1500
-            });
+            if (response.data) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Event Updated!',
+                    text: 'Your event has been updated successfully.',
+                    showConfirmButton: false,
+                    timer: 2000,
+                });
 
-            onUpdate(response.data);
-            onClose();
+                if (onUpdate) {
+                    onUpdate(response.data);
+                }
+                onClose();
+            }
         } catch (error) {
             console.error('Error updating event:', error);
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: 'Failed to update event'
+                text: error.response?.data?.message || 'Failed to update event. Please try again.',
             });
         } finally {
             setLoading(false);
@@ -50,69 +71,61 @@ const EditEvent = ({ event, onClose, onUpdate, theme }) => {
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className={`${theme.cardBg} max-w-2xl w-full mx-4 rounded-lg shadow-xl p-6`}>
-                <div className="flex justify-between items-center mb-4">
+                <div className="flex items-center gap-3 mb-6">
+                    <FaCalendar className={theme.buttonColor} />
                     <h2 className="text-2xl font-bold">Edit Event</h2>
-                    <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-                        <FaTimes size={24} />
-                    </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* Event Name */}
                     <div>
                         <label className="block text-sm font-medium mb-2">Event Name</label>
                         <input
                             type="text"
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
-                            className={`w-full p-2 rounded-lg ${theme.borderColor} focus:ring-2`}
+                            className={`w-full p-2 rounded-lg ${theme.cardBg} ${theme.borderColor} focus:ring-2`}
+                            placeholder="e.g., Summer Vacation 2024"
                             required
                         />
                     </div>
 
+                    {/* Event Description */}
                     <div>
                         <label className="block text-sm font-medium mb-2">Description</label>
                         <textarea
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
-                            className={`w-full p-2 rounded-lg h-32 ${theme.borderColor} focus:ring-2`}
+                            className={`w-full p-2 rounded-lg h-32 ${theme.cardBg} ${theme.borderColor} focus:ring-2`}
+                            placeholder="Describe your event..."
                         />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium mb-2">Start Date</label>
-                            <input
-                                type="date"
-                                value={startDate}
-                                onChange={(e) => setStartDate(e.target.value)}
-                                className={`w-full p-2 rounded-lg ${theme.borderColor} focus:ring-2`}
-                                required
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium mb-2">End Date</label>
-                            <input
-                                type="date"
-                                value={endDate}
-                                min={startDate}
-                                onChange={(e) => setEndDate(e.target.value)}
-                                className={`w-full p-2 rounded-lg ${theme.borderColor} focus:ring-2`}
-                                required
-                            />
-                        </div>
+                    {/* Date */}
+                    <div>
+                        <label className="block text-sm font-medium mb-2">Date</label>
+                        <input
+                            type="date"
+                            value={date}
+                            onChange={(e) => setDate(e.target.value)}
+                            className={`w-full p-2 rounded-lg ${theme.cardBg} ${theme.borderColor} focus:ring-2`}
+                            required
+                        />
                     </div>
 
+                    {/* Location */}
                     <div>
                         <label className="block text-sm font-medium mb-2">Location (Optional)</label>
                         <input
                             type="text"
                             value={location}
                             onChange={(e) => setLocation(e.target.value)}
-                            className={`w-full p-2 rounded-lg ${theme.borderColor} focus:ring-2`}
+                            className={`w-full p-2 rounded-lg ${theme.cardBg} ${theme.borderColor} focus:ring-2`}
                             placeholder="e.g., Paris, France"
                         />
                     </div>
 
+                    {/* Buttons */}
                     <div className="flex justify-end gap-4">
                         <button
                             type="button"

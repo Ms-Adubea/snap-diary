@@ -179,7 +179,7 @@ const ViewEntries = ({ theme }) => {
                         <div className={!isGridView ? 'w-48 h-48 flex-shrink-0' : ''}>
                             {entry.image ? (
                                 <img
-                                    src={`https://savefiles.org/${entry.image}`}
+                                    src={`https://savefiles.org/${entry.image[0]}`}
                                     alt={entry.title}
                                     className={`${isGridView ? 'w-full h-48' : 'w-48 h-48'} object-cover`}
                                 />
