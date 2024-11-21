@@ -11,7 +11,7 @@ const ViewEntry = ({ entry, onClose, onToggleFavorite, theme }) => {
                         <button
                             onClick={() => onToggleFavorite(entry.id)}
                             className={`p-2 rounded-full transition-colors ${
-                                entry.favorites ? 'text-yellow-500' : 'text-gray-400'
+                                entry.isFavorited ? 'text-yellow-500' : 'text-gray-400'
                             }`}
                         >
                             <FaStar />
@@ -29,7 +29,7 @@ const ViewEntry = ({ entry, onClose, onToggleFavorite, theme }) => {
                     {entry.image && (
                         <div className="mb-4">
                             <img
-                                src={`https://savefiles.org/${entry.image}?shareable_link=509`}
+                                src={`https://savefiles.org/${entry.image}`}
                                 alt={entry.title}
                                 className="w-full h-64 object-cover rounded-lg"
                             />

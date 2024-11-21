@@ -1,41 +1,48 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaImage, FaStar, FaTimes } from 'react-icons/fa';
 import Swal from 'sweetalert2';
-import { apiPostPhotos, apiPostFavorite } from '../services/photo';
+import { apiPostPhotos } from '../services/photo';
+import { apiGetEvents } from '../services/event';
 
-const AddEntry = ({ events, onSave, theme }) => {
+const AddEntry = ({ onSave, theme }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [selectedEvent, setSelectedEvent] = useState('');
-  const [images, setImages] = useState([]);
-  const [favorites, setFavorites] = useState(false);
-  const [previewUrls, setPreviewUrls] = useState([]);
+  const [image, setImage] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [isFavorited, setIsFavorited] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [events, setEvents] = useState([]);
+
+  // Fetch events when component mounts
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await apiGetEvents();
+        console.log('Available events:', response.data); // Debug log
+        if (response.data && response.data.data) {
+          setEvents(response.data.data);
+        }
+      } catch (error) {
+        console.error('Error fetching events:', error);
+      }
+    };
+
+    fetchEvents();
+  }, []);
 
   const handleImageUpload = (e) => {
-    const files = Array.from(e.target.files);
-    const newPreviewUrls = files.map(file => URL.createObjectURL(file));
-    setImages(prevImages => [...prevImages, ...files]);
-    setPreviewUrls(prevUrls => [...prevUrls, ...newPreviewUrls]);
+    const file = e.target.files[0];
+    if (file) {
+      setImage(file);
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+    }
   };
 
-  const removeImage = (index) => {
-    setImages(prevImages => prevImages.filter((_, i) => i !== index));
-    setPreviewUrls(prevUrls => prevUrls.filter((_, i) => i !== index));
-  };
-
-  const handleDragEnd = (result) => {
-    if (!result.destination) return;
-
-    const items = Array.from(images);
-    const previews = Array.from(previewUrls);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    const [reorderedPreview] = previews.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
-    previews.splice(result.destination.index, 0, reorderedPreview);
-
-    setImages(items);
-    setPreviewUrls(previews);
+  const removeImage = () => {
+    setImage(null);
+    setPreviewUrl(null);
   };
 
   const handleSubmit = async (e) => {
@@ -50,11 +57,11 @@ const AddEntry = ({ events, onSave, theme }) => {
       return;
     }
 
-    if (images.length === 0) {
+    if (!image) {
       Swal.fire({
         icon: 'error',
-        title: 'Images Required',
-        text: 'Please upload at least one image',
+        title: 'Image Required',
+        text: 'Please upload an image',
       });
       return;
     }
@@ -65,26 +72,15 @@ const AddEntry = ({ events, onSave, theme }) => {
       formData.append('title', title);
       formData.append('description', description);
       if (selectedEvent) {
-        formData.append('eventId', selectedEvent);
+        formData.append('event', selectedEvent);
       }
-      
-      // Append each image
-      images.forEach((image) => {
-        formData.append('images', image);
-      });
+      formData.append('image', image);
+
+      console.log('Submitting entry with event ID:', selectedEvent); // Debug log
 
       const response = await apiPostPhotos(formData);
       
       if (response.data) {
-        // If favorites is true, make a separate call to mark as favorite
-        if (favorites) {
-          try {
-            await apiPostFavorite(response.data.id);
-          } catch (favoriteError) {
-            console.error('Error marking as favorite:', favoriteError);
-          }
-        }
-
         Swal.fire({
           icon: 'success',
           title: 'Entry Created!',
@@ -97,9 +93,9 @@ const AddEntry = ({ events, onSave, theme }) => {
         setTitle('');
         setDescription('');
         setSelectedEvent('');
-        setImages([]);
-        setPreviewUrls([]);
-        setFavorites(false);
+        setImage(null);
+        setPreviewUrl(null);
+        setIsFavorited(false);
 
         if (onSave) {
           onSave(response.data);
@@ -149,23 +145,25 @@ const AddEntry = ({ events, onSave, theme }) => {
           <label className="block text-sm font-medium mb-2">Event</label>
           <select
             value={selectedEvent}
-            onChange={(e) => setSelectedEvent(e.target.value)}
+            onChange={(e) => {
+              console.log('Selected event ID:', e.target.value); // Debug log
+              setSelectedEvent(e.target.value);
+            }}
             className={`w-full p-2 rounded-lg ${theme.cardBg} ${theme.borderColor} focus:ring-2`}
           >
             <option value="">Select an event (optional)</option>
-            {events.map(event => (
-              <option key={event.id} value={event.id}>{event.eventName}</option>
+            {Array.isArray(events) && events.map(event => (
+              <option key={event._id} value={event._id}>{event.title}</option>
             ))}
           </select>
         </div>
 
         {/* Image Upload */}
         <div>
-          <label className="block text-sm font-medium mb-2">Photos</label>
-          <div className={`border-2 border-dashed ${theme.borderColor} rounded-lg p-6 text-center ${theme.cardBg}`}>
+          <label className="block text-sm font-medium mb-2">Photo</label>
+          <div className={`border-2 border-dashed ${theme.borderColor} rounded-lg p-6 text-center`}>
             <input
               type="file"
-              multiple
               accept="image/*"
               onChange={handleImageUpload}
               className="hidden"
@@ -176,47 +174,27 @@ const AddEntry = ({ events, onSave, theme }) => {
               className="cursor-pointer flex flex-col items-center"
             >
               <FaImage className="text-4xl text-gray-400 mb-2" />
-              <span>Click to upload images</span>
+              <span>Click to upload image</span>
             </label>
           </div>
 
           {/* Image Preview */}
-          {previewUrls.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
-              {previewUrls.map((url, index) => (
-                <div key={url} className="relative group">
-                  <img
-                    src={url}
-                    alt={`Preview ${index + 1}`}
-                    className="w-full h-40 object-cover rounded-lg"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeImage(index)}
-                    className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <FaTimes />
-                  </button>
-                </div>
-              ))}
+          {previewUrl && (
+            <div className="mt-4 relative">
+              <img
+                src={previewUrl}
+                alt="Preview"
+                className="w-full h-64 object-cover rounded-lg"
+              />
+              <button
+                type="button"
+                onClick={removeImage}
+                className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600"
+              >
+                <FaTimes />
+              </button>
             </div>
           )}
-        </div>
-
-        {/* Favorite Toggle */}
-        <div className="flex items-center">
-          <button
-            type="button"
-            onClick={() => setFavorites(!favorites)}
-            className={`p-2 rounded-full transition-colors ${
-              favorites ? 'text-yellow-500' : 'text-gray-400'
-            }`}
-          >
-            <FaStar className="text-xl" />
-          </button>
-          <span className="ml-2 text-sm">
-            {favorites ? 'Remove from favorites' : 'Add to favorites'}
-          </span>
         </div>
 
         {/* Submit Button */}

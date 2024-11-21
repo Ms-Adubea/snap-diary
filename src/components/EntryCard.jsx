@@ -7,7 +7,7 @@ const EntryCard = ({ entry }) => {
       <h4 className="entry-title">{entry.title}</h4>
       <p className="entry-date">{entry.date}</p>
       <button className="favorite-button">
-        {entry.isFavorite ? '★' : '☆'}
+        {entry.isFavorited ? '★' : '☆'}
       </button>
     </div>
   );

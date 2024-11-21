@@ -6,15 +6,14 @@ import Swal from 'sweetalert2';
 const CreateEvent = ({ onSave, theme }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [date, setDate] = useState('');
   const [location, setLocation] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!eventName.trim()) {
+    if (!title.trim()) {
       Swal.fire({
         icon: 'error',
         title: 'Event Name Required',
@@ -23,11 +22,11 @@ const CreateEvent = ({ onSave, theme }) => {
       return;
     }
 
-    if (!startDate || !endDate) {
+    if (!date) {
       Swal.fire({
         icon: 'error',
-        title: 'Dates Required',
-        text: 'Please select both start and end dates',
+        title: 'Date Required',
+        text: 'Please select a date',
       });
       return;
     }
@@ -37,12 +36,14 @@ const CreateEvent = ({ onSave, theme }) => {
       const eventData = {
         title,
         description,
-        startDate,
-        endDate,
+        date,
         location,
       };
 
+      console.log('Submitting event data:', eventData); // Debug log
+
       const response = await apiCreateEvent(eventData);
+      console.log('Event creation response:', response); // Debug log
       
       if (response.data) {
         Swal.fire({
@@ -56,8 +57,7 @@ const CreateEvent = ({ onSave, theme }) => {
         // Reset form
         setTitle('');
         setDescription('');
-        setStartDate('');
-        setEndDate('');
+        setDate('');
         setLocation('');
 
         // Call onSave if provided
@@ -109,29 +109,16 @@ const CreateEvent = ({ onSave, theme }) => {
           />
         </div>
 
-        {/* Date Range */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-2">Start Date</label>
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className={`w-full p-2 rounded-lg ${theme.cardBg} ${theme.borderColor} focus:ring-2`}
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-2">End Date</label>
-            <input
-              type="date"
-              value={endDate}
-              min={startDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className={`w-full p-2 rounded-lg ${theme.cardBg} ${theme.borderColor} focus:ring-2`}
-              required
-            />
-          </div>
+        {/* Date */}
+        <div>
+          <label className="block text-sm font-medium mb-2">Date</label>
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className={`w-full p-2 rounded-lg ${theme.cardBg} ${theme.borderColor} focus:ring-2`}
+            required
+          />
         </div>
 
         {/* Location */}

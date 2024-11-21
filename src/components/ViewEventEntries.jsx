@@ -41,9 +41,9 @@ const ViewEventEntries = ({ event, onClose, theme }) => {
                                     key={entry.id}
                                     className={`${theme.cardBg} rounded-lg shadow-md overflow-hidden`}
                                 >
-                                    {entry.images && entry.images.length > 0 && (
+                                    {entry.image && (
                                         <img
-                                            src={`https://savefiles.org/secure/uploads/${entry.images[0]}?shareable_link=509`}
+                                            src={`https://savefiles.org/secure/uploads/${entry.image}?shareable_link=509`}
                                             alt={entry.title}
                                             className="w-full h-48 object-cover"
                                         />

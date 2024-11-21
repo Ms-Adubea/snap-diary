@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { FaStar, FaEye, FaEdit, FaTrash, FaImage } from 'react-icons/fa';
-import { apiGetUserPhotos, apiDeletePhoto, apiPostFavorite } from '../services/photo';
+import { apiGetUserPhotos, apiDeletePhoto, apiPostFavorite, apiRemoveFavorite, isEntryFavorited } from '../services/photo';
 import ViewEntry from './ViewEntry';
 import EditEntry from './EditEntry';
 import SearchBar from './SearchBar';
 import Swal from 'sweetalert2';
+import Pagination from './Pagination';
+import ViewToggle from './ViewToggle';
 
 const ViewEntries = ({ theme }) => {
     const [entries, setEntries] = useState([]);
@@ -12,15 +14,19 @@ const ViewEntries = ({ theme }) => {
     const [selectedEntry, setSelectedEntry] = useState(null);
     const [editingEntry, setEditingEntry] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 9; // Show 9 items per page (3x3 grid)
+    const [isGridView, setIsGridView] = useState(true);
 
     const fetchEntries = async () => {
         try {
             const response = await apiGetUserPhotos();
-            const sortedEntries = response.data.sort((a, b) => 
-                new Date(b.createdAt) - new Date(a.createdAt)
-            );
-            setEntries(sortedEntries);
-            setFilteredEntries(sortedEntries);
+            const entriesWithFavorites = response.data.map(entry => ({
+                ...entry,
+                isFavorited: isEntryFavorited(entry.id)
+            }));
+            setEntries(entriesWithFavorites);
+            setFilteredEntries(entriesWithFavorites);
         } catch (error) {
             console.error('Error fetching entries:', error);
             Swal.fire({
@@ -91,20 +97,22 @@ const ViewEntries = ({ theme }) => {
 
     const handleToggleFavorite = async (id) => {
         try {
-            await apiPostFavorite(id);
+            const entry = entries.find(e => e.id === id);
+            if (entry.isFavorited) {
+                await apiRemoveFavorite(id);
+            } else {
+                await apiPostFavorite(id);
+            }
+
+            // Update the entries state with the new favorite status
             const updatedEntries = entries.map(entry => 
                 entry.id === id 
-                    ? { ...entry, isFavorite: !entry.isFavorite }
+                    ? { ...entry, isFavorited: !entry.isFavorited }
                     : entry
             );
             setEntries(updatedEntries);
-            setFilteredEntries(
-                filteredEntries.map(entry => 
-                    entry.id === id 
-                        ? { ...entry, isFavorite: !entry.isFavorite }
-                        : entry
-                )
-            );
+            setFilteredEntries(updatedEntries);
+
         } catch (error) {
             console.error('Error toggling favorite:', error);
             Swal.fire({
@@ -127,13 +135,30 @@ const ViewEntries = ({ theme }) => {
         }
     };
 
+    // Get current entries
+    const indexOfLastEntry = currentPage * itemsPerPage;
+    const indexOfFirstEntry = indexOfLastEntry - itemsPerPage;
+    const currentEntries = filteredEntries.slice(indexOfFirstEntry, indexOfLastEntry);
+
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+        window.scrollTo(0, 0); // Scroll to top when page changes
+    };
+
     if (loading) {
         return <div className="flex justify-center items-center h-64">Loading...</div>;
     }
 
     return (
         <div className={`p-6 ${theme.textColor}`}>
-            <h2 className="text-2xl font-bold mb-6">My Memories</h2>
+            <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold">My Memories</h2>
+                <ViewToggle 
+                    isGridView={isGridView} 
+                    onToggle={setIsGridView}
+                    theme={theme}
+                />
+            </div>
             
             <SearchBar 
                 onSearch={handleSearch}
@@ -141,27 +166,31 @@ const ViewEntries = ({ theme }) => {
                 theme={theme}
             />
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredEntries.map((entry) => (
+            <div className={isGridView 
+                ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                : "flex flex-col gap-4"
+            }>
+                {currentEntries.map((entry) => (
                     <div 
                         key={entry.id} 
-                        className={`${theme.cardBg} rounded-lg shadow-md overflow-hidden`}
+                        className={`${theme.cardBg} rounded-lg shadow-md overflow-hidden
+                            ${!isGridView && 'flex'}`}
                     >
-                        <div className="aspect-w-16 aspect-h-9">
-                            {entry.images && entry.images[0] ? (
+                        <div className={!isGridView ? 'w-48 h-48 flex-shrink-0' : ''}>
+                            {entry.image ? (
                                 <img
-                                    src={`https://savefiles.org/secure/uploads/${entry.images[0]}?shareable_link=509`}
+                                    src={`https://savefiles.org/${entry.image}`}
                                     alt={entry.title}
-                                    className="w-full h-48 object-cover"
+                                    className={`${isGridView ? 'w-full h-48' : 'w-48 h-48'} object-cover`}
                                 />
                             ) : (
-                                <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
+                                <div className={`${isGridView ? 'w-full h-48' : 'w-48 h-48'} bg-gray-200 flex items-center justify-center`}>
                                     <FaImage className="text-4xl text-gray-400" />
                                 </div>
                             )}
                         </div>
                         
-                        <div className="p-4">
+                        <div className="p-4 flex-1">
                             <h3 className="text-lg font-semibold mb-2">{entry.title}</h3>
                             <p className="text-sm opacity-75 mb-4">
                                 {entry.description?.substring(0, 100)}...
@@ -185,8 +214,8 @@ const ViewEntries = ({ theme }) => {
                                     </button>
                                     <button
                                         onClick={() => handleToggleFavorite(entry.id)}
-                                        className={`${entry.isFavorite ? 'text-yellow-500' : 'text-gray-400'} hover:text-yellow-500`}
-                                        title={entry.isFavorite ? "Remove from favorites" : "Add to favorites"}
+                                        className={`${entry.isFavorited ? 'text-yellow-500' : 'text-gray-400'} hover:text-yellow-500`}
+                                        title={entry.isFavorited ? "Remove from favorites" : "Add to favorites"}
                                     >
                                         <FaStar />
                                     </button>
@@ -204,6 +233,14 @@ const ViewEntries = ({ theme }) => {
                     </div>
                 ))}
             </div>
+
+            <Pagination 
+                currentPage={currentPage}
+                totalItems={filteredEntries.length}
+                itemsPerPage={itemsPerPage}
+                onPageChange={handlePageChange}
+                theme={theme}
+            />
 
             {selectedEntry && (
                 <ViewEntry

@@ -86,9 +86,9 @@ const Overview = ({ onSelect, theme }) => {
                                     className={`p-4 ${theme.borderColor} rounded-lg hover:shadow-md transition-shadow cursor-pointer`}
                                 >
                                     <div className="flex gap-4">
-                                        {entry.images && entry.images[0] ? (
+                                        {entry.image ? (
                                             <img
-                                                src={`https://savefiles.org/secure/uploads/${entry.images[0]}?shareable_link=509`}
+                                                src={`https://savefiles.org/secure/uploads/${entry.image}?shareable_link=509`}
                                                 alt={entry.title}
                                                 className="w-20 h-20 object-cover rounded-lg"
                                             />
@@ -124,9 +124,9 @@ const Overview = ({ onSelect, theme }) => {
                                     className={`p-4 ${theme.borderColor} rounded-lg hover:shadow-md transition-shadow cursor-pointer`}
                                 >
                                     <div className="flex gap-4">
-                                        {entry.images && entry.images[0] ? (
+                                        {entry.image ? (
                                             <img
-                                                src={`https://savefiles.org/secure/uploads/${entry.images[0]}?shareable_link=509`}
+                                                src={`https://savefiles.org/secure/uploads/${entry.image}?shareable_link=509`}
                                                 alt={entry.title}
                                                 className="w-20 h-20 object-cover rounded-lg"
                                             />
