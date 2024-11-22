@@ -4,6 +4,7 @@ import Sidebar from './Sidebar';
 import AddEntry from './AddEntry';
 import CreateEvent from './CreateEvent';
 import ViewEntries from './ViewEntries';
+import SampleEntries from './SampleEntries';
 import ViewEvents from './ViewEvents';
 import ViewFavorites from './ViewFavorites';
 import Settings from './Settings';
@@ -201,19 +202,13 @@ const Dashboard = () => {
   };
 
   const handleThemeChange = (theme) => {
-    setCurrentTheme(theme);
-    localStorage.setItem('themeId', theme.id);
-  };
-
-  useEffect(() => {
-    const savedThemeId = localStorage.getItem('themeId');
-    if (savedThemeId) {
-      const savedTheme = themes.find(theme => theme.id === savedThemeId);
-      if (savedTheme) {
-        setCurrentTheme(savedTheme);
-      }
+    try {
+      setCurrentTheme(theme);
+      localStorage.setItem('themeId', theme.id);
+    } catch (error) {
+      console.error('Error changing theme:', error);
     }
-  }, []);
+  };
 
   const renderContent = () => {
     switch (selectedView) {
@@ -237,6 +232,11 @@ const Dashboard = () => {
         />;
       case "viewEntries":
         return <ViewEntries 
+          entries={entries} 
+          theme={currentTheme}
+        />;
+      case "sampleEntries":
+        return <SampleEntries 
           entries={entries} 
           theme={currentTheme}
         />;

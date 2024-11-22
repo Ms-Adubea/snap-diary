@@ -81,10 +81,16 @@ const Sidebar = ({ onSelect, isOpen, isMobile, theme }) => {
                             onClick={() => handleSelect("createEvent")} 
                             expanded={isExpanded || isMobile} 
                         />
-                        <SidebarButton 
+                        {/* <SidebarButton 
                             icon={<RiGalleryFill className="text-gray-500" />} 
                             text="My Memories" 
                             onClick={() => handleSelect("viewEntries")} 
+                            expanded={isExpanded || isMobile} 
+                        /> */}
+                        <SidebarButton 
+                            icon={<RiGalleryFill className="text-gray-500" />} 
+                            text="My Memories" 
+                            onClick={() => handleSelect("sampleEntries")} 
                             expanded={isExpanded || isMobile} 
                         />
                         <SidebarButton 

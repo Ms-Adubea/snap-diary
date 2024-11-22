@@ -8,7 +8,20 @@ import Swal from 'sweetalert2';
 import Pagination from './Pagination';
 import ViewToggle from './ViewToggle';
 
-const ViewEntries = ({ theme }) => {
+// At the top of your file, add the sample images array
+const sampleImages = [
+    "https://americanbehavioralclinics.com/wp-content/uploads/2023/06/Depositphotos_252922046_L.jpg",
+    "https://images.pexels.com/photos/1172253/pexels-photo-1172253.jpeg",
+    "https://images.pexels.com/photos/169647/pexels-photo-169647.jpeg",
+    "https://images.pexels.com/photos/313782/pexels-photo-313782.jpeg",
+    "https://images.pexels.com/photos/773471/pexels-photo-773471.jpeg",
+    "https://images.pexels.com/photos/672532/pexels-photo-672532.jpeg",
+    "https://images.pexels.com/photos/632522/pexels-photo-632522.jpeg",
+    "https://images.pexels.com/photos/777059/pexels-photo-777059.jpeg",
+    "https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg"
+];
+
+const SampleEntries = ({ theme }) => {
     const [entries, setEntries] = useState([]);
     const [filteredEntries, setFilteredEntries] = useState([]);
     const [selectedEntry, setSelectedEntry] = useState(null);
@@ -178,28 +191,21 @@ const ViewEntries = ({ theme }) => {
                 ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
                 : "flex flex-col gap-4"
             }>
-                {currentEntries.map((entry) => (
+                {currentEntries.map((entry, index) => (
                     <div 
                         key={entry.id} 
                         className={`${theme.cardBg} rounded-lg shadow-md overflow-hidden
                             ${!isGridView && 'flex'}`}
                     >
                         <div className={!isGridView ? 'w-48 h-48 flex-shrink-0' : ''}>
-                            {entry.image ? (
-                                <img
-                                    src={`https://savefiles.org/${entry.image}?shareable_link=509`}
-                                    alt={entry.title}
-                                    className={`${isGridView ? 'w-full h-48' : 'w-48 h-48'} object-cover`}
-                                    // onError={(e) => {
-                                    //     e.target.src = "https://americanbehavioralclinics.com/wp-content/uploads/2023/06/Depositphotos_252922046_L.jpg";
-                                    //     console.error("Image failed to load:", e.target.src);
-                                    // }}
-                                />
-                            ) : (
-                                <div className={`${isGridView ? 'w-full h-48' : 'w-48 h-48'} bg-gray-200 flex items-center justify-center`}>
-                                    <FaImage className="text-4xl text-gray-400" />
-                                </div>
-                            )}
+                            <img
+                                src={sampleImages[index % sampleImages.length]} // Use modulo to cycle through sample images
+                                alt={entry.title}
+                                className={`${isGridView ? 'w-full h-48' : 'w-48 h-48'} object-cover`}
+                                onError={(e) => {
+                                    e.target.src = sampleImages[0]; // Fallback to first sample image if error
+                                }}
+                            />
                         </div>
                         
                         <div className="p-4 flex-1">
@@ -275,4 +281,4 @@ const ViewEntries = ({ theme }) => {
     );
 };
 
-export default ViewEntries;
+export default SampleEntries;
