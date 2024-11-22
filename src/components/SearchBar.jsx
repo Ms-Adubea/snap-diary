@@ -3,18 +3,19 @@ import { FaSearch, FaCalendar, FaTimes } from 'react-icons/fa';
 
 const SearchBar = ({ onSearch, onClear, theme }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [date, setDate] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSearch({ searchTerm, startDate, endDate });
+    onSearch({ 
+      searchTerm, 
+      date
+    });
   };
 
   const handleClear = () => {
     setSearchTerm('');
-    setStartDate('');
-    setEndDate('');
+    setDate('');
     onClear();
   };
 
@@ -27,33 +28,21 @@ const SearchBar = ({ onSearch, onClear, theme }) => {
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search by title or description..."
+            placeholder="Search by title, description, or location..."
             className={`w-full pl-10 pr-4 py-2 rounded-lg ${theme.cardBg} ${theme.borderColor} focus:ring-2`}
           />
           <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
         </div>
 
-        {/* Date Range */}
-        <div className="flex gap-2">
-          <div className="relative">
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className={`pl-10 pr-4 py-2 rounded-lg ${theme.cardBg} ${theme.borderColor} focus:ring-2`}
-            />
-            <FaCalendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          </div>
-          <span className="self-center">to</span>
-          <div className="relative">
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className={`pl-10 pr-4 py-2 rounded-lg ${theme.cardBg} ${theme.borderColor} focus:ring-2`}
-            />
-            <FaCalendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          </div>
+        {/* Date Filter */}
+        <div className="relative">
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className={`pl-10 pr-4 py-2 rounded-lg ${theme.cardBg} ${theme.borderColor} focus:ring-2`}
+          />
+          <FaCalendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
         </div>
 
         {/* Buttons */}
