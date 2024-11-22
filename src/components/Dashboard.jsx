@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaSun, FaMoon, FaLeaf } from 'react-icons/fa';
+import { FaSun, FaMoon, FaLeaf, FaHome } from 'react-icons/fa';
 import Sidebar from './Sidebar';
 import AddEntry from './AddEntry';
 import CreateEvent from './CreateEvent';
@@ -34,8 +34,9 @@ const themes = [
     textColor: 'text-white',
     bgColor: 'bg-gray-900',
     cardBg: 'bg-gray-800',
-    buttonColor: 'bg-blue-600 hover:bg-blue-700',
-    borderColor: 'border-gray-700'
+    buttonColor: 'bg-blue-500 hover:bg-blue-600',
+    borderColor: 'border-gray-700',
+    formBg: 'bg-gray-200'
   },
   {
     id: 'nature',
@@ -47,7 +48,21 @@ const themes = [
     bgColor: 'bg-green-50',
     cardBg: 'bg-white',
     buttonColor: 'bg-green-600 hover:bg-green-700',
-    borderColor: 'border-green-200'
+    borderColor: 'border-green-200',
+    formBg: 'bg-green-200'
+  },
+  {
+    id: 'cozy',
+    name: 'Cozy',
+    icon: FaHome,
+    gradient: 'bg-gradient-to-r from-blue-300 via-blue-400 to-blue-500',
+    headerGradient: 'bg-blue-600',
+    textColor: 'text-gray-800',
+    bgColor: 'bg-blue-50',
+    cardBg: 'bg-white',
+    buttonColor: 'bg-blue-600 hover:bg-blue-700',
+    borderColor: 'border-blue-200',
+    formBg: 'bg-blue-200'
   }
 ];
 
@@ -58,10 +73,17 @@ const Dashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   const [currentTheme, setCurrentTheme] = useState(() => {
-    const savedThemeId = localStorage.getItem('themeId');
-    return savedThemeId ? 
-      themes.find(theme => theme.id === savedThemeId) || themes[0] : 
-      themes[0];
+    try {
+      const savedThemeId = localStorage.getItem('themeId');
+      if (savedThemeId) {
+        const foundTheme = themes.find(theme => theme.id === savedThemeId);
+        return foundTheme || themes[0];
+      }
+      return themes[0]; // Default to light theme
+    } catch (error) {
+      console.error('Error loading theme:', error);
+      return themes[0]; // Default to light theme if there's an error
+    }
   });
   const [user, setUser] = useState({
     firstName: '',
@@ -69,6 +91,14 @@ const Dashboard = () => {
     email: '',
     avatar: null
   });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('themeId', currentTheme.id);
+    } catch (error) {
+      console.error('Error saving theme:', error);
+    }
+  }, [currentTheme]);
 
   const handleSaveEvent = (newEvent) => {
     setEvents([...events, newEvent]);
