@@ -3,7 +3,7 @@ import React from 'react';
 const featuresData = [
   {
     title: 'Personalized Dashboard',
-    description: 'Easily access your journal entries and events from a single dashboard.',
+    description: 'Easily access your journal entries and collections from a single dashboard.',
     icon: '📊',
   },
   {
@@ -13,12 +13,12 @@ const featuresData = [
   },
   {
     title: 'Event Organization',
-    description: 'Group your entries into themed events for easy navigation.',
+    description: 'Group your entries into themed collections for easy navigation.',
     icon: '📅',
   },
   {
-    title: 'Favorites & Privacy',
-    description: 'Mark entries as favorites and control their visibility with privacy settings.',
+    title: 'Favorites',
+    description: 'Mark entries as favorites for quick access.',
     icon: '⭐',
   },
   {

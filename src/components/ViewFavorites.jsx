@@ -70,7 +70,7 @@ const ViewFavorites = ({ theme }) => {
     }
 
     return (
-        <div className={`p-6 ${theme.textColor}`}>
+        <div className={`p-6 ${theme.textColor} ${theme.formBg}`}>
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold">My Favorite Memories</h2>
                 <ViewToggle 

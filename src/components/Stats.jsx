@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaBook, FaCalendar } from 'react-icons/fa';
+import { FaBook } from 'react-icons/fa';
 import { apiGetUserPhotos } from '../services/photo';
 import { apiGetEvents } from '../services/event';
 import { IoImagesOutline } from "react-icons/io5";
@@ -20,7 +20,7 @@ const Stats = ({ theme }) => {
 
                 setStats({
                     totalEntries: entriesResponse.data.length,
-                    totalEvents: eventsResponse.data.length
+                    totalEvents: eventsResponse.data.data ? eventsResponse.data.data.length : 0
                 });
             } catch (error) {
                 console.error('Error fetching stats:', error);

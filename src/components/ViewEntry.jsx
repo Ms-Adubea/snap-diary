@@ -29,7 +29,7 @@ const ViewEntry = ({ entry, onClose, onToggleFavorite, theme }) => {
                     {entry.image && (
                         <div className="mb-4">
                             <img
-                                src={`https://savefiles.org/${entry.image}`}
+                                src={`https://savefiles.org/${entry.image}?shareable_link=509`}
                                 alt={entry.title}
                                 className="w-full h-64 object-cover rounded-lg"
                             />

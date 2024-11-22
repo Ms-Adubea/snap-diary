@@ -1,10 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Features from './components/Features';
 import Testimonials from './components/Testimonials';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-
+import AboutUs from './components/AboutUs';
 const HomePage = () => {
   return (
     <div className="relative min-h-screen overflow-hidden">
@@ -43,7 +42,7 @@ const HomePage = () => {
           </Link>
         </section>
 
-        <Features />
+        <AboutUs />
 
         {/* Call to Action */}
         <section 

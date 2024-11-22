@@ -21,12 +21,11 @@ const ViewEntries = ({ theme }) => {
     const fetchEntries = async () => {
         try {
             const response = await apiGetUserPhotos();
-            const entriesWithFavorites = response.data.map(entry => ({
-                ...entry,
-                isFavorited: isEntryFavorited(entry.id)
-            }));
-            setEntries(entriesWithFavorites);
-            setFilteredEntries(entriesWithFavorites);
+            const sortedEntries = response.data.sort((a, b) => 
+                new Date(b.createdAt) - new Date(a.createdAt)
+            );
+            setEntries(sortedEntries);
+            setFilteredEntries(sortedEntries);
         } catch (error) {
             console.error('Error fetching entries:', error);
             Swal.fire({
@@ -125,11 +124,20 @@ const ViewEntries = ({ theme }) => {
 
     const handleUpdate = async (updatedEntry) => {
         try {
-            setEntries(prevEntries => 
-                prevEntries.map(entry => 
-                    entry.id === updatedEntry.id ? updatedEntry : entry
-                )
+            // Update both entries and filteredEntries states
+            const updatedEntries = entries.map(entry => 
+                entry._id === updatedEntry._id ? updatedEntry : entry
             );
+            const updatedFilteredEntries = filteredEntries.map(entry => 
+                entry._id === updatedEntry._id ? updatedEntry : entry
+            );
+
+            setEntries(updatedEntries);
+            setFilteredEntries(updatedFilteredEntries);
+            setEditingEntry(null);
+
+            // Fetch fresh data
+            await fetchEntries();
         } catch (error) {
             console.error('Error updating entry:', error);
         }
@@ -150,7 +158,7 @@ const ViewEntries = ({ theme }) => {
     }
 
     return (
-        <div className={`p-6 ${theme.textColor}`}>
+        <div className={`p-6 ${theme.textColor} ${theme.formBg}`}>
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold">My Memories</h2>
                 <ViewToggle 
@@ -179,9 +187,13 @@ const ViewEntries = ({ theme }) => {
                         <div className={!isGridView ? 'w-48 h-48 flex-shrink-0' : ''}>
                             {entry.image ? (
                                 <img
-                                    src={`https://savefiles.org/${entry.image[0]}`}
+                                    src={`https://savefiles.org/${entry.image}?shareable_link=509`}
                                     alt={entry.title}
                                     className={`${isGridView ? 'w-full h-48' : 'w-48 h-48'} object-cover`}
+                                    onError={(e) => {
+                                        e.target.src = "https://americanbehavioralclinics.com/wp-content/uploads/2023/06/Depositphotos_252922046_L.jpg";
+                                        console.error("Image failed to load:", e.target.src);
+                                    }}
                                 />
                             ) : (
                                 <div className={`${isGridView ? 'w-full h-48' : 'w-48 h-48'} bg-gray-200 flex items-center justify-center`}>

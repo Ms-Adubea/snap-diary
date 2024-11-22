@@ -101,12 +101,33 @@ const ViewEvents = ({ theme }) => {
         }
     };
 
+    const handleUpdate = async (updatedEvent) => {
+        try {
+            // Update both events and filteredEvents states
+            const updatedEvents = events.map(event => 
+                event._id === updatedEvent._id ? updatedEvent : event
+            );
+            const updatedFilteredEvents = filteredEvents.map(event => 
+                event._id === updatedEvent._id ? updatedEvent : event
+            );
+
+            setEvents(updatedEvents);
+            setFilteredEvents(updatedFilteredEvents);
+            setEditingEvent(null);
+
+            // Fetch fresh data
+            await fetchEvents();
+        } catch (error) {
+            console.error('Error updating event:', error);
+        }
+    };
+
     if (loading) {
         return <div className="flex justify-center items-center h-64">Loading...</div>;
     }
 
     return (
-        <div className={`p-6 ${theme.textColor}`}>
+        <div className={`p-6 ${theme.textColor} ${theme.formBg}`}>
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold">My Collections</h2>
                 <ViewToggle 
@@ -141,6 +162,10 @@ const ViewEvents = ({ theme }) => {
                                     src={`https://savefiles.org/${event.entries[0].image}`}
                                     alt={event.title}
                                     className={`${isGridView ? 'w-full h-48' : 'w-48 h-48'} object-cover`}
+                                    onError={(e) => {
+                                      e.target.src = "https://americanbehavioralclinics.com/wp-content/uploads/2023/06/Depositphotos_252922046_L.jpg";
+                                      console.error("Image failed to load:", e.target.src);
+                                  }}
                                 />
                             ) : (
                                 <div className={`${isGridView ? 'w-full h-48' : 'w-48 h-48'} bg-gray-200 flex items-center justify-center`}>
@@ -219,6 +244,7 @@ const ViewEvents = ({ theme }) => {
                 <EditEvent
                     event={editingEvent}
                     onClose={() => setEditingEvent(null)}
+                    onUpdate={handleUpdate}
                     theme={theme}
                 />
             )}
