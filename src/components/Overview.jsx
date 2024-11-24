@@ -3,6 +3,7 @@ import { FaPlus, FaCalendarPlus, FaImage } from 'react-icons/fa';
 import { getCurrentUser } from '../services/auth';
 import { apiGetUserPhotos } from '../services/photo';
 import Stats from './Stats';
+import PolaroidCarousel from './PolaroidCarousel';
 
 const Overview = ({ onSelect, theme }) => {
     const [user, setUser] = useState(null);
@@ -71,6 +72,14 @@ const Overview = ({ onSelect, theme }) => {
 
             {/* Stats Section */}
             <Stats theme={theme} />
+
+            {/* Add PolaroidCarousel before Recent and Favorite Entries */}
+            {entries.length > 0 && (
+                <PolaroidCarousel 
+                    entries={entries.slice(0, 5)} // Show first 5 entries
+                    theme={theme}
+                />
+            )}
 
             {/* Recent and Favorite Entries */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
