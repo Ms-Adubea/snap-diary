@@ -75,7 +75,7 @@ const Overview = ({ onSelect, theme }) => {
             {/* Recent and Favorite Entries */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Recent Entries */}
-                <div className={`${theme.cardBg} p-6 rounded-lg shadow-md`}>
+                {/* <div className={`${theme.cardBg} p-6 rounded-lg shadow-md`}>
                     <h2 className="text-xl font-semibold mb-4">Recent Entries</h2>
                     <div className="space-y-4">
                         {recentEntries.length > 0 ? (
@@ -110,10 +110,10 @@ const Overview = ({ onSelect, theme }) => {
                             <p className="text-gray-500">No entries yet. Start by creating one!</p>
                         )}
                     </div>
-                </div>
+                </div> */}
 
                 {/* Favorite Entries */}
-                <div className={`${theme.cardBg} p-6 rounded-lg shadow-md`}>
+                {/* <div className={`${theme.cardBg} p-6 rounded-lg shadow-md`}>
                     <h2 className="text-xl font-semibold mb-4">Favorite Entries</h2>
                     <div className="space-y-4">
                         {favoriteEntries.length > 0 ? (
@@ -148,7 +148,7 @@ const Overview = ({ onSelect, theme }) => {
                             <p className="text-gray-500">No favorite entries yet. Mark entries as favorite to see them here!</p>
                         )}
                     </div>
-                </div>
+                </div> */}
             </div>
         </div>
     );
